@@ -37,9 +37,13 @@ export default async function TopicPage({
         </div>
 
         <article className="topic-body">
-          {topic.body.split("\n\n").map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          {topic.body
+            .replace(/\\n\\n/g, "\n\n")
+            .split(/\n{2,}/)
+            .filter((paragraph) => paragraph.trim().length > 0)
+            .map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
         </article>
 
         <TopicDetail topicId={topic.id} initialComments={comments} />
