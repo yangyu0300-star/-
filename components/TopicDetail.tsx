@@ -4,13 +4,32 @@ import { useState } from "react";
 import ReplyForm from "./ReplyForm";
 import { OPENING_PHRASE, REFUTE_LABEL } from "@/lib/types";
 import type { Comment, RefuteType } from "@/lib/types";
+import { submitComment } from "@/app/actions";
 
-function nowStamp() {
-  const d = new Date();
+function adaptFromActionRow(row: {
+  id: string;
+  topic_id: string;
+  parent_id: string | null;
+  refute_type: "full" | "partial";
+  target_quote: string | null;
+  reason: string;
+  author_name: string;
+  created_at: string;
+}): Comment {
+  const d = new Date(row.created_at);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
-    d.getHours()
-  )}:${pad(d.getMinutes())}`;
+  return {
+    id: row.id,
+    topicId: row.topic_id,
+    parentId: row.parent_id,
+    refuteType: row.refute_type,
+    targetQuote: row.target_quote ?? undefined,
+    reason: row.reason,
+    author: row.author_name,
+    createdAt: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
+      d.getHours()
+    )}:${pad(d.getMinutes())}`,
+  };
 }
 
 export default function TopicDetail({
@@ -22,22 +41,21 @@ export default function TopicDetail({
 }) {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const tail = comments.length > 0 ? comments[comments.length - 1] : null;
+  const [globalError, setGlobalError] = useState<string | null>(null);
 
-  function handleReply(payload: {
+  async function handleReply(payload: {
+    authorName: string;
     refuteType: RefuteType;
     reason: string;
     targetQuote?: string;
   }) {
-    const comment: Comment = {
-      id: `local-${Date.now()}`,
-      topicId,
-      parentId: tail ? tail.id : null,
-      refuteType: payload.refuteType,
-      targetQuote: payload.targetQuote,
-      reason: payload.reason,
-      author: "你",
-      createdAt: nowStamp(),
-    };
+    setGlobalError(null);
+    const result = await submitComment({ topicId, ...payload });
+    if (!result.ok || !result.comment) {
+      setGlobalError(result.ok ? "提交失败，请稍后再试。" : (result.error ?? "未知错误"));
+      return;
+    }
+    const comment = adaptFromActionRow(result.comment);
     setComments((prev) => [...prev, comment]);
   }
 
@@ -69,15 +87,18 @@ export default function TopicDetail({
             )}
 
             <p className="comment-text">
-              <span className="opening">{OPENING_PHRASE[comment.refuteType]}</span>
+              <span className="opening">
+                {OPENING_PHRASE[comment.refuteType]}
+              </span>
               {comment.reason}
             </p>
           </article>
         ))}
       </div>
 
+      {globalError && <p className="field-error" style={{ marginTop: 14 }}>{globalError}</p>}
+
       <ReplyForm tail={tail} onSubmit={handleReply} />
     </>
   );
- }
-
+}

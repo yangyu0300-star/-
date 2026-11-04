@@ -12,8 +12,10 @@ const TYPE_DESC: Record<RefuteType, string> = {
 const REASON_MIN = 20;
 const REASON_MAX = 2000;
 const QUOTE_MAX = 200;
+const AUTHOR_MAX = 20;
 
 type Errors = {
+  author?: string;
   refuteType?: string;
   reason?: string;
   targetQuote?: string;
@@ -25,20 +27,29 @@ export default function ReplyForm({
 }: {
   tail: Comment | null;
   onSubmit: (payload: {
+    authorName: string;
     refuteType: RefuteType;
     reason: string;
     targetQuote?: string;
   }) => void;
 }) {
+  const [authorName, setAuthorName] = useState("");
   const [refuteType, setRefuteType] = useState<RefuteType | null>(null);
   const [reason, setReason] = useState("");
   const [targetQuote, setTargetQuote] = useState("");
   const [errors, setErrors] = useState<Errors>({});
 
   const reasonLength = reason.trim().length;
+  const trimmedAuthor = authorName.trim();
 
   function validate(): Errors {
     const next: Errors = {};
+
+    if (trimmedAuthor.length === 0) {
+      next.author = "请留一个昵称。";
+    } else if (trimmedAuthor.length > AUTHOR_MAX) {
+      next.author = `昵称最多 ${AUTHOR_MAX} 字。`;
+    }
 
     if (!refuteType) {
       next.refuteType = "请先选择「完全反驳」或「部分反驳」。";
@@ -70,6 +81,7 @@ export default function ReplyForm({
     if (!refuteType || Object.keys(next).length > 0) return;
 
     onSubmit({
+      authorName: trimmedAuthor,
       refuteType,
       reason: reason.trim(),
       targetQuote: refuteType === "partial" ? targetQuote.trim() : undefined,
@@ -99,6 +111,21 @@ export default function ReplyForm({
           <>这个话题还没有评论，你将成为第 1 环。</>
         )}
       </p>
+
+      <label className="field-label" htmlFor="author">你的昵称</label>
+      <input
+        id="author"
+        className={errors.author ? "field field-plain field-invalid" : "field field-plain"}
+        value={authorName}
+        maxLength={AUTHOR_MAX}
+        onChange={(event) => {
+          setAuthorName(event.target.value);
+          setErrors((prev) => ({ ...prev, author: undefined }));
+        }}
+        aria-invalid={Boolean(errors.author)}
+        placeholder="最多 20 字，阶段 5 还没接登录"
+      />
+      {errors.author && <p className="field-error">{errors.author}</p>}
 
       <div className="type-options" role="group" aria-label="选择反驳类型">
         {(Object.keys(REFUTE_LABEL) as RefuteType[]).map((type) => (

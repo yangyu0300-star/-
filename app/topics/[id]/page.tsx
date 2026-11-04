@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import TopicDetail from "@/components/TopicDetail";
-import { getComments, getTopic } from "@/lib/mock-data";
+import { getCommentsByTopic, getTopic } from "@/lib/db";
 
 export default async function TopicPage({
   params,
@@ -9,11 +9,10 @@ export default async function TopicPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const topic = getTopic(id);
+  const topic = await getTopic(id);
+  if (!topic) notFound();
 
-  if (!topic) {
-    notFound();
-  }
+  const comments = await getCommentsByTopic(id);
 
   return (
     <>
@@ -34,7 +33,7 @@ export default async function TopicPage({
         <h1 className="page-title">{topic.title}</h1>
         <div className="topic-meta" style={{ marginBottom: 22 }}>
           <span>起始于 {topic.createdAt}</span>
-          <span>{getComments(topic.id).length} 条评论</span>
+          <span>{comments.length} 条评论</span>
         </div>
 
         <article className="topic-body">
@@ -43,7 +42,7 @@ export default async function TopicPage({
           ))}
         </article>
 
-        <TopicDetail topicId={topic.id} initialComments={getComments(topic.id)} />
+        <TopicDetail topicId={topic.id} initialComments={comments} />
       </main>
     </>
   );
