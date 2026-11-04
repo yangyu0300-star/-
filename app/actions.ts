@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
 import type { RefuteType } from "@/lib/types";
 
@@ -67,6 +68,10 @@ export async function submitComment(input: SubmitInput) {
     }
     return { ok: false, error: `提交失败：${error.message}` };
   }
+
+  // 让列表页的评论数、最后活动时间跟着更新
+  revalidatePath("/");
+  revalidatePath(`/topics/${input.topicId}`);
 
   return { ok: true, comment: data };
 }
