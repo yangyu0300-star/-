@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
+import { REPORT_REASONS } from "@/lib/types";
 import type { RefuteType } from "@/lib/types";
 
 export interface SubmitInput {
@@ -54,7 +55,9 @@ export async function submitComment(input: SubmitInput) {
       reason,
       author_name: author,
     })
-    .select("id, topic_id, parent_id, refute_type, target_quote, reason, author_name, created_at")
+    .select(
+      "id, topic_id, parent_id, refute_type, target_quote, reason, author_name, created_at, status"
+    )
     .single();
 
   if (error) {
@@ -74,4 +77,26 @@ export async function submitComment(input: SubmitInput) {
   revalidatePath(`/topics/${input.topicId}`);
 
   return { ok: true, comment: data };
+}
+
+export async function submitReport(input: { commentId: string; reason: string }) {
+  const reason = input.reason.trim();
+
+  if (!REPORT_REASONS.includes(reason as (typeof REPORT_REASONS)[number])) {
+    return { ok: false, error: "举报原因无效。" };
+  }
+  if (!input.commentId) {
+    return { ok: false, error: "举报对象无效。" };
+  }
+
+  const { error } = await supabase.from("reports").insert({
+    comment_id: input.commentId,
+    reason,
+  });
+
+  if (error) {
+    return { ok: false, error: `举报提交失败：${error.message}` };
+  }
+
+  return { ok: true };
 }
