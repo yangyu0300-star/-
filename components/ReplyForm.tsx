@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { OPENING_PHRASE, REFUTE_LABEL } from "@/lib/types";
+import { OPENING_PHRASE, REFUTE_LABEL, REMOVED_PLACEHOLDER } from "@/lib/types";
 import type { Comment, RefuteType } from "@/lib/types";
 
 const TYPE_DESC: Record<RefuteType, string> = {
@@ -103,10 +103,14 @@ export default function ReplyForm({
     <form className="reply" onSubmit={submit} noValidate>
       <p className="reply-target">
         {tail ? (
-          <>
-            你的反驳对象是链尾唯一一条评论：<strong>{tail.author}</strong>
-            （{REFUTE_LABEL[tail.refuteType]} · {tail.createdAt}）
-          </>
+          tail.status === "removed" ? (
+            <>你的反驳对象是链尾唯一一条评论，但它已被移除（{REMOVED_PLACEHOLDER}）。你仍然接在它后面，位置保留。</>
+          ) : (
+            <>
+              你的反驳对象是链尾唯一一条评论：<strong>{tail.author}</strong>
+              （{REFUTE_LABEL[tail.refuteType]} · {tail.createdAt}）
+            </>
+          )
         ) : (
           <>这个话题还没有评论，你将成为第 1 环。</>
         )}
@@ -123,7 +127,7 @@ export default function ReplyForm({
           setErrors((prev) => ({ ...prev, author: undefined }));
         }}
         aria-invalid={Boolean(errors.author)}
-        placeholder="最多 20 字，阶段 5 还没接登录"
+        placeholder="最多 20 字"
       />
       {errors.author && <p className="field-error">{errors.author}</p>}
 
