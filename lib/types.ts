@@ -1,5 +1,7 @@
 export type RefuteType = "full" | "partial";
 
+export type CommentStatus = "visible" | "removed";
+
 export interface Topic {
   id: string;
   title: string;
@@ -17,7 +19,19 @@ export interface Comment {
   reason: string;
   author: string;
   createdAt: string;
+  status: CommentStatus;
 }
+
+export const REPORT_REASONS = [
+  "违法违规内容",
+  "广告或引流",
+  "人身攻击",
+  "其他",
+] as const;
+
+export type ReportReason = (typeof REPORT_REASONS)[number];
+
+export const REMOVED_PLACEHOLDER = "该评论因违反社区规则已被移除";
 
 export const REFUTE_LABEL: Record<RefuteType, string> = {
   full: "完全反驳",
