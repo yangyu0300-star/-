@@ -19,6 +19,8 @@ export interface CommentRow {
   author_name: string;
   created_at: string;
   status: "visible" | "removed" | null;
+  vote_up: number | null;
+  vote_down: number | null;
 }
 
 export interface TopicWithStats {
@@ -75,7 +77,7 @@ export async function getTopic(id: string): Promise<Topic | undefined> {
 export async function getCommentsByTopic(topicId: string): Promise<Comment[]> {
   const { data, error } = await supabase
     .from("comments")
-    .select("id, topic_id, parent_id, refute_type, target_quote, reason, author_name, created_at, status")
+    .select("id, topic_id, parent_id, refute_type, target_quote, reason, author_name, created_at, status, vote_up, vote_down")
     .eq("topic_id", topicId)
     .order("created_at", { ascending: true });
 
@@ -104,6 +106,8 @@ export function fromCommentRow(row: CommentRow): Comment {
     author: row.author_name,
     createdAt: formatDateTime(row.created_at),
     status: row.status ?? "visible",
+    voteUp: row.vote_up ?? 0,
+    voteDown: row.vote_down ?? 0,
   };
 }
 

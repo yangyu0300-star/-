@@ -20,7 +20,19 @@ export interface Comment {
   author: string;
   createdAt: string;
   status: CommentStatus;
+  voteUp: number;
+  voteDown: number;
 }
+
+export type VoteValue = "up" | "down";
+
+export const VOTE_LABEL: Record<VoteValue, string> = {
+  up: "逻辑站得住",
+  down: "逻辑有漏洞",
+};
+
+export const VOTE_HINT =
+  "这两个按钮只评价论证过程，不评价你是否认同观点。不同意就直接接力反驳。";
 
 export const REPORT_REASONS = [
   "违法违规内容",

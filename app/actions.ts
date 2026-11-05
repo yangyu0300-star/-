@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
 import { REPORT_REASONS } from "@/lib/types";
-import type { RefuteType } from "@/lib/types";
+import type { RefuteType, VoteValue } from "@/lib/types";
 
 export interface SubmitInput {
   topicId: string;
@@ -56,7 +56,7 @@ export async function submitComment(input: SubmitInput) {
       author_name: author,
     })
     .select(
-      "id, topic_id, parent_id, refute_type, target_quote, reason, author_name, created_at, status"
+      "id, topic_id, parent_id, refute_type, target_quote, reason, author_name, created_at, status, vote_up, vote_down"
     )
     .single();
 
@@ -99,4 +99,54 @@ export async function submitReport(input: { commentId: string; reason: string })
   }
 
   return { ok: true };
+}
+
+export type VoteResult =
+  | { ok: false; error: string }
+  | { ok: true; voteUp: number; voteDown: number };
+
+export async function submitVote(input: {
+  commentId: string;
+  value: VoteValue;
+  voterKey: string;
+}): Promise<VoteResult> {
+  if (!["up", "down"].includes(input.value)) {
+    return { ok: false, error: "投票类型无效。" };
+  }
+  if (!input.commentId) {
+    return { ok: false, error: "投票对象无效。" };
+  }
+  if (input.voterKey.length < 8 || input.voterKey.length > 64) {
+    return { ok: false, error: "投票标识无效。" };
+  }
+
+  // 同一 comment + voter_key 只保留一票；重复点击会改写这一票
+  const { error } = await supabase.from("votes").upsert(
+    {
+      comment_id: input.commentId,
+      voter_key: input.voterKey,
+      value: input.value,
+    },
+    { onConflict: "comment_id,voter_key" }
+  );
+
+  if (error) {
+    return { ok: false, error: `投票失败：${error.message}` };
+  }
+
+  const { data, error: readErr } = await supabase
+    .from("comments")
+    .select("vote_up, vote_down")
+    .eq("id", input.commentId)
+    .single();
+
+  if (readErr) {
+    return { ok: false, error: `读取计数失败：${readErr.message}` };
+  }
+
+  return {
+    ok: true,
+    voteUp: (data?.vote_up as number | null) ?? 0,
+    voteDown: (data?.vote_down as number | null) ?? 0,
+  };
 }

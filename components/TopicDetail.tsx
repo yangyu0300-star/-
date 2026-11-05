@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReplyForm from "./ReplyForm";
 import {
   OPENING_PHRASE,
   REFUTE_LABEL,
   REMOVED_PLACEHOLDER,
   REPORT_REASONS,
+  VOTE_HINT,
+  VOTE_LABEL,
 } from "@/lib/types";
-import type { Comment, RefuteType } from "@/lib/types";
-import { submitComment, submitReport } from "@/app/actions";
+import type { Comment, RefuteType, VoteValue } from "@/lib/types";
+import { submitComment, submitReport, submitVote } from "@/app/actions";
 
 function adaptFromActionRow(row: {
   id: string;
@@ -21,6 +23,8 @@ function adaptFromActionRow(row: {
   author_name: string;
   created_at: string;
   status?: "visible" | "removed" | null;
+  vote_up?: number | null;
+  vote_down?: number | null;
 }): Comment {
   const d = new Date(row.created_at);
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -36,7 +40,21 @@ function adaptFromActionRow(row: {
       d.getHours()
     )}:${pad(d.getMinutes())}`,
     status: row.status ?? "visible",
+    voteUp: row.vote_up ?? 0,
+    voteDown: row.vote_down ?? 0,
   };
+}
+
+const VOTER_KEY_STORAGE = "rr_voter_key";
+const MY_VOTES_STORAGE = "rr_my_votes";
+
+function getVoterKey(): string {
+  let key = localStorage.getItem(VOTER_KEY_STORAGE);
+  if (!key) {
+    key = crypto.randomUUID();
+    localStorage.setItem(VOTER_KEY_STORAGE, key);
+  }
+  return key;
 }
 
 export default function TopicDetail({
@@ -55,6 +73,47 @@ export default function TopicDetail({
   const [reportError, setReportError] = useState<string | null>(null);
   const [reportBusy, setReportBusy] = useState(false);
   const [reported, setReported] = useState<string[]>([]);
+  const [myVotes, setMyVotes] = useState<Record<string, VoteValue>>({});
+  const [voting, setVoting] = useState<string | null>(null);
+  const [voteError, setVoteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(MY_VOTES_STORAGE);
+      if (raw) setMyVotes(JSON.parse(raw) as Record<string, VoteValue>);
+    } catch {
+      // 本地记录损坏就当作没投过，不影响使用
+    }
+  }, []);
+
+  async function handleVote(commentId: string, value: VoteValue) {
+    setVoting(commentId);
+    setVoteError(null);
+
+    const result = await submitVote({
+      commentId,
+      value,
+      voterKey: getVoterKey(),
+    });
+    setVoting(null);
+
+    if (!result.ok) {
+      setVoteError(result.error ?? "投票失败，请稍后再试。");
+      return;
+    }
+
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === commentId
+          ? { ...c, voteUp: result.voteUp, voteDown: result.voteDown }
+          : c
+      )
+    );
+
+    const nextVotes = { ...myVotes, [commentId]: value };
+    setMyVotes(nextVotes);
+    localStorage.setItem(MY_VOTES_STORAGE, JSON.stringify(nextVotes));
+  }
 
   async function handleReply(payload: {
     authorName: string;
@@ -94,13 +153,17 @@ export default function TopicDetail({
         <span>共 {comments.length} 环 · 由上到下依次接力</span>
       </div>
 
+      <p className="vote-hint">{VOTE_HINT}</p>
+
+      {voteError && <p className="field-error">{voteError}</p>}
+
       <div className="chain">
         {comments.map((comment, index) => {
           if (comment.status === "removed") {
             return (
               <article key={comment.id} className="comment comment-removed">
                 <div className="comment-head">
-                  <span className={"badge badge-removed"}>已移除</span>
+                  <span className={`badge badge-removed`}>已移除</span>
                   <span>第 {index + 1} 环</span>
                   <span>{comment.createdAt}</span>
                 </div>
@@ -117,7 +180,7 @@ export default function TopicDetail({
             >
               <div className="comment-head">
                 <span className="author">{comment.author}</span>
-                <span className={"badge badge-" + comment.refuteType}>
+                <span className={`badge badge-${comment.refuteType}`}>
                   {REFUTE_LABEL[comment.refuteType]}
                 </span>
                 <span>第 {index + 1} 环</span>
@@ -134,6 +197,24 @@ export default function TopicDetail({
                 </span>
                 {comment.reason}
               </p>
+
+              <div className="vote-row">
+                {(Object.keys(VOTE_LABEL) as VoteValue[]).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className="vote-btn"
+                    aria-pressed={myVotes[comment.id] === value}
+                    disabled={voting === comment.id}
+                    onClick={() => handleVote(comment.id, value)}
+                  >
+                    {VOTE_LABEL[value]}
+                    <span className="vote-count">
+                      {value === "up" ? comment.voteUp : comment.voteDown}
+                    </span>
+                  </button>
+                ))}
+              </div>
 
               <div className="comment-actions">
                 {reported.includes(comment.id) ? (
