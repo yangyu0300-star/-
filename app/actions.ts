@@ -13,6 +13,66 @@ export interface SubmitInput {
   targetQuote?: string;
 }
 
+const TITLE_MIN = 6;
+const TITLE_MAX = 60;
+const SUMMARY_MAX = 120;
+const BODY_MIN = 20;
+const BODY_MAX = 2000;
+
+// 话题 id 用「标题里的英文数字 + 随机尾巴」，保证短、可读、不重复
+function makeTopicId(title: string): string {
+  const slug = (title.toLowerCase().match(/[a-z0-9]+/g) ?? [])
+    .join("-")
+    .slice(0, 24)
+    .replace(/^-+|-+$/g, "");
+  const suffix = Math.random().toString(36).slice(2, 6);
+  return slug ? `${slug}-${suffix}` : `topic-${suffix}${Math.random().toString(36).slice(2, 4)}`;
+}
+
+export async function createTopic(input: {
+  title: string;
+  summary: string;
+  body: string;
+}) {
+  const title = input.title.trim();
+  const body = input.body.trim().replace(/\r\n/g, "\n");
+  let summary = input.summary.trim().replace(/\s+/g, " ");
+
+  if (title.length < TITLE_MIN || title.length > TITLE_MAX) {
+    return { ok: false as const, error: `话题标题需 ${TITLE_MIN}–${TITLE_MAX} 字。` };
+  }
+  if (summary.length > SUMMARY_MAX) {
+    return { ok: false as const, error: `一句话简介最多 ${SUMMARY_MAX} 字。` };
+  }
+  if (body.length < BODY_MIN || body.length > BODY_MAX) {
+    return { ok: false as const, error: `话题正文需 ${BODY_MIN}–${BODY_MAX} 字。` };
+  }
+  // 没填简介就自动取正文前一句，避免卡片上留空
+  if (summary.length === 0) {
+    summary = body.slice(0, SUMMARY_MAX).replace(/\n+/g, " ");
+  }
+
+  // id 冲突（极小概率）时换一个尾巴重试
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const id = makeTopicId(title);
+    const { data, error } = await supabase
+      .from("topics")
+      .insert({ id, title, summary, body })
+      .select("id")
+      .single();
+
+    if (!error) {
+      revalidatePath("/");
+      return { ok: true as const, id: data.id as string };
+    }
+    if (error.code !== "23505") {
+      return { ok: false as const, error: `创建话题失败：${error.message}` };
+    }
+  }
+
+  return { ok: false as const, error: "创建话题失败：编号重复，请重试。" };
+}
+
 export async function submitComment(input: SubmitInput) {
   // 服务端二次校验（双保险，数据库层还有 check 约束）
   const author = input.authorName.trim();

@@ -588,6 +588,36 @@ a {
   color: var(--ink);
 }
 
+.list-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.list-head .page-sub {
+  margin-bottom: 0;
+}
+
+.new-topic-link {
+  flex: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+.new-topic-link:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 @media (max-width: 560px) {
   .shell {
     padding: 24px 16px 72px;

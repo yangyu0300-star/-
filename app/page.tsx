@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getTopics } from "@/lib/db";
 
+// 话题数据随时会变，不在构建时预渲染，避免构建期依赖数据库
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const topics = await getTopics();
 
@@ -19,8 +22,15 @@ export default async function HomePage() {
           规则是玩法的一部分，不接受跳层回复。
         </div>
 
-        <h1 className="page-title">进行中的话题</h1>
-        <p className="page-sub">选一个话题，从链尾接上你的反驳。</p>
+        <div className="list-head">
+          <div>
+            <h1 className="page-title">进行中的话题</h1>
+            <p className="page-sub">选一个话题，从链尾接上你的反驳。</p>
+          </div>
+          <Link href="/topics/new" className="new-topic-link">
+            ＋ 发起新话题
+          </Link>
+        </div>
 
         <div className="topic-list">
           {topics.map(({ topic, commentCount, lastActivity }) => (

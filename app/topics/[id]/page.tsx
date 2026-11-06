@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import TopicDetail from "@/components/TopicDetail";
 import { getCommentsByTopic, getTopic } from "@/lib/db";
 
+// 评论链随时会变，不在构建时预渲染，避免构建期依赖数据库
+export const dynamic = "force-dynamic";
+
 export default async function TopicPage({
   params,
 }: {
