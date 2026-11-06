@@ -628,6 +628,39 @@ a {
   color: #fff;
 }
 
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.search-input {
+  margin-bottom: 0;
+  flex: 1 1 auto;
+  max-width: 420px;
+}
+
+.search-clear {
+  font-size: 13px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.search-clear:hover {
+  color: var(--ink);
+}
+
+.empty-note {
+  padding: 28px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: 14px;
+  margin: 0;
+}
+
 .delete-topic {
   display: flex;
   flex-wrap: wrap;
@@ -828,6 +861,13 @@ a {
     align-items: stretch;
   }
   .submit {
+    width: 100%;
+  }
+  .search-bar {
+    flex-wrap: wrap;
+  }
+  .search-input {
+    max-width: none;
     width: 100%;
   }
   .admin-card {

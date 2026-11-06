@@ -29,11 +29,20 @@ export interface TopicWithStats {
   lastActivity: string | null;
 }
 
-export async function getTopics(): Promise<TopicWithStats[]> {
-  const { data: topicsData, error: tErr } = await supabase
+export async function getTopics(keyword?: string): Promise<TopicWithStats[]> {
+  let query = supabase
     .from("topics")
-    .select("id, title, summary, body, created_at")
-    .order("created_at", { ascending: false });
+    .select("id, title, summary, body, created_at");
+
+  // 标题或简介模糊匹配；逗号、百分号会破坏 PostgREST 的 or 语法，先替换成空格
+  const kw = (keyword ?? "").trim().slice(0, 50).replace(/[%,]/g, " ");
+  if (kw) {
+    query = query.or(`title.ilike.%${kw}%,summary.ilike.%${kw}%`);
+  }
+
+  const { data: topicsData, error: tErr } = await query.order("created_at", {
+    ascending: false,
+  });
   if (tErr) throw tErr;
 
   const topicIds = (topicsData as TopicRow[]).map((t) => t.id);
