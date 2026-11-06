@@ -689,23 +689,6 @@ a {
   gap: 12px;
 }
 
-/* === AI 筛查警告 === */
-.mod-warning {
-  margin: 10px 0 0;
-  padding: 8px 12px;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: #9a6800;
-  background: #fff8e1;
-  border-left: 3px solid #f5a623;
-  border-radius: 4px;
-}
-
-.mod-reason {
-  color: #a87a1a;
-  font-style: italic;
-}
-
 /* === 举报处理后台 === */
 .admin-login {
   max-width: 420px;

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import ReplyForm from "./ReplyForm";
 import {
-  MODERATION_FLAGGED_HINT,
   OPENING_PHRASE,
   REFUTE_LABEL,
   REMOVED_PLACEHOLDER,
@@ -27,8 +26,6 @@ function adaptFromActionRow(row: {
   status?: "visible" | "removed" | null;
   vote_up?: number | null;
   vote_down?: number | null;
-  moderation_flagged?: boolean;
-  moderation_reason?: string | null;
 }): Comment {
   const d = new Date(row.created_at);
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -46,8 +43,6 @@ function adaptFromActionRow(row: {
     status: row.status ?? "visible",
     voteUp: row.vote_up ?? 0,
     voteDown: row.vote_down ?? 0,
-    moderationFlagged: row.moderation_flagged ?? false,
-    moderationReason: row.moderation_reason ?? null,
   };
 }
 
@@ -213,15 +208,6 @@ export default function TopicDetail({
                 </span>
                 {comment.reason}
               </p>
-
-              {comment.moderationFlagged && (
-                <p className="mod-warning">
-                  ⚠️ AI 提示这条内容可能有问题，请自行判断。{" "}
-                  {comment.moderationReason && (
-                    <span className="mod-reason">原因：{comment.moderationReason}</span>
-                  )}
-                </p>
-              )}
 
               <div className="vote-row">
                 {(Object.keys(VOTE_LABEL) as VoteValue[]).map((value) => (

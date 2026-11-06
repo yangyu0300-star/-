@@ -1,38 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { after } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { moderateText } from "@/lib/moderate";
 import { REPORT_REASONS } from "@/lib/types";
 import type { RefuteType, VoteValue } from "@/lib/types";
-
-/**
- * 同步 AI 筛查——必须 await，不然 Vercel Serverless 在 response 发出后会掐掉异步任务
- * 免费模型 1–3 秒返回，超时/失败返回 status=error 不阻断 chain
- */
-async function _saveModeration(
-  entityType: "topic" | "comment",
-  entityId: string,
-  text: string
-) {
-  try {
-    const result = await moderateText(text);
-    const { error } = await supabase.from("moderations").upsert(
-      {
-        entity_type: entityType,
-        entity_id: entityId,
-        status: result.status,
-        model: result.model,
-        reason: result.reason,
-      },
-      { onConflict: "entity_type,entity_id" }
-    );
-    if (error) console.error("[mod] upsert failed:", error.message);
-  } catch (err) {
-    console.error("[mod] unexpected error:", err);
-  }
-}
 
 export interface SubmitInput {
   topicId: string;
@@ -125,10 +96,6 @@ export async function createTopic(input: {
 
     if (!error) {
       revalidatePath("/");
-      // AI 筛查挂起：响应发出后用 after() 继续跑，不阻塞发帖，也不会被 Serverless 提前掐掉
-      after(async () => {
-        await _saveModeration("topic", data.id as string, `${title}\n${body}`);
-      });
       return { ok: true as const, id: data.id as string };
     }
     if (error.code !== "23505") {
@@ -248,15 +215,6 @@ export async function submitComment(input: SubmitInput) {
   // 让列表页的评论数、最后活动时间跟着更新
   revalidatePath("/");
   revalidatePath(`/topics/${input.topicId}`);
-
-  // AI 筛查挂起：响应发出后用 after() 继续跑，不阻塞发帖，也不会被 Serverless 提前掐掉
-  after(async () => {
-    await _saveModeration(
-      "comment",
-      data.id as string,
-      `${author}：${reason}${quote ? `\n反驳部分：${quote}` : ""}`
-    );
-  });
 
   return { ok: true, comment: data };
 }

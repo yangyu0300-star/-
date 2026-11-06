@@ -22,21 +22,9 @@ export interface Comment {
   status: CommentStatus;
   voteUp: number;
   voteDown: number;
-  moderationFlagged?: boolean;
-  moderationReason?: string | null;
 }
 
 export type VoteValue = "up" | "down";
-
-export type ModerationStatus = "passed" | "flagged" | "error";
-
-export interface ModerationInfo {
-  status: ModerationStatus;
-  reason: string | null;
-}
-
-export const MODERATION_FLAGGED_HINT =
-  "⚠️ AI 提示这条内容可能有问题，请自行判断。反驳的话请聚焦观点本身，不要人身攻击。";
 
 export const VOTE_LABEL: Record<VoteValue, string> = {
   up: "逻辑站得住",
