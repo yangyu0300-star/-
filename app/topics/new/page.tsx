@@ -7,7 +7,7 @@ export default function NewTopicPage() {
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/" className="brand">
-            反驳接力
+            驳学者
           </Link>
           <span className="brand-note">每条新评论，只能反驳上一条</span>
         </div>

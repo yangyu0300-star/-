@@ -8,7 +8,7 @@
  *  - 3 秒超时：Vercel Serverless 冷启动 + 免费模型一般 1 秒内返回，3 秒足够
  *  - 免费模型：google/gemma-3-4b-it:free，OpenRouter 免费通道，不走计费
  *  - 只扫三类：违法违规 / 明显人身攻击 / 色情低俗
- *  - 尖锐的反驳观点 ≠ 风险——我们是反驳接力社区，prompt 里专门排除这个
+ *  - 尖锐的反驳观点 ≠ 风险——我们是驳学者，prompt 里专门排除这个
  */
 
 export type ModerationStatus = "passed" | "flagged" | "error";

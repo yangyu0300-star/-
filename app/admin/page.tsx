@@ -72,7 +72,7 @@ export default async function AdminPage() {
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/" className="brand">
-            反驳接力
+            驳学者
           </Link>
           <span className="brand-note">举报处理后台</span>
         </div>

@@ -11,7 +11,7 @@ export default async function HomePage() {
     <>
       <header className="topbar">
         <div className="topbar-inner">
-          <span className="brand">反驳接力</span>
+          <span className="brand">驳学者</span>
           <span className="brand-note">每条新评论，只能反驳上一条</span>
         </div>
       </header>
