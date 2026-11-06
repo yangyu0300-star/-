@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { moderateText } from "@/lib/moderate";
 import { REPORT_REASONS } from "@/lib/types";
@@ -124,8 +125,10 @@ export async function createTopic(input: {
 
     if (!error) {
       revalidatePath("/");
-      // AI 筛查挂起：后台静默跑，不阻塞发帖；跑成不成功都不影响主流程
-      void _saveModeration("topic", data.id as string, `${title}\n${body}`);
+      // AI 筛查挂起：响应发出后用 after() 继续跑，不阻塞发帖，也不会被 Serverless 提前掐掉
+      after(async () => {
+        await _saveModeration("topic", data.id as string, `${title}\n${body}`);
+      });
       return { ok: true as const, id: data.id as string };
     }
     if (error.code !== "23505") {
@@ -246,12 +249,14 @@ export async function submitComment(input: SubmitInput) {
   revalidatePath("/");
   revalidatePath(`/topics/${input.topicId}`);
 
-  // AI 筛查挂起：后台静默跑，不阻塞发帖；跑成不成功都不影响主流程
-  void _saveModeration(
-    "comment",
-    data.id as string,
-    `${author}：${reason}${quote ? `\n反驳部分：${quote}` : ""}`
-  );
+  // AI 筛查挂起：响应发出后用 after() 继续跑，不阻塞发帖，也不会被 Serverless 提前掐掉
+  after(async () => {
+    await _saveModeration(
+      "comment",
+      data.id as string,
+      `${author}：${reason}${quote ? `\n反驳部分：${quote}` : ""}`
+    );
+  });
 
   return { ok: true, comment: data };
 }

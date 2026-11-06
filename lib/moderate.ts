@@ -5,8 +5,8 @@
  *
  * 设计原则：
  *  - Best effort：AI 挂了 / 超时 / 返回 5xx → 静默跳过，绝不阻断主流程
- *  - 3 秒超时：Vercel Serverless 冷启动 + 免费模型一般 1 秒内返回，3 秒足够
- *  - 免费模型：google/gemma-3-4b-it:free，OpenRouter 免费通道，不走计费
+ *  - 8 秒超时：用 after() 在响应之后跑，不占用户等待时间
+ *  - 免费模型：google/gemma-4-26b-a4b-it:free（Gemma 3 系列 free 通道已下线，会 404）
  *  - 只扫三类：违法违规 / 明显人身攻击 / 色情低俗
  *  - 尖锐的反驳观点 ≠ 风险——我们是驳学者，prompt 里专门排除这个
  */
@@ -19,8 +19,8 @@ export interface ModerationResult {
   reason: string | null;
 }
 
-const MODEL = "google/gemma-3-4b-it:free";
-const TIMEOUT_MS = 3000;
+const MODEL = "google/gemma-4-26b-a4b-it:free";
+const TIMEOUT_MS = 8000;
 const MAX_INPUT_CHARS = 4000;
 
 const SYSTEM_PROMPT = `你是一个中文社区的内容筛查员，社区叫"驳学者"，是人们用来互相反驳、辩论、接力观点的。你必须区分"激烈但合法的观点反驳"和"真正违规的内容"。
@@ -75,10 +75,17 @@ export async function moderateText(text: string): Promise<ModerationResult> {
     });
 
     if (!res.ok) {
+      // 带上响应体前 120 字，方便在 moderations 表里直接看到真实原因
+      let detail = "";
+      try {
+        detail = (await res.text()).slice(0, 120);
+      } catch {
+        // 读响应体失败就只记状态码
+      }
       return {
         status: "error",
         model: MODEL,
-        reason: `http ${res.status}`,
+        reason: `http ${res.status}${detail ? `: ${detail}` : ""}`,
       };
     }
 
