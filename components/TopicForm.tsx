@@ -9,18 +9,47 @@ const TITLE_MAX = 60;
 const SUMMARY_MAX = 120;
 const BODY_MIN = 20;
 const BODY_MAX = 2000;
+const DELETE_PWD_MIN = 6;
+const DELETE_PWD_MAX = 40;
 
 type Errors = {
   title?: string;
   summary?: string;
   body?: string;
+  deletePassword?: string;
 };
+
+const OWNER_KEY_STORAGE = "rr_owner_key";
+const MY_TOPICS_STORAGE = "rr_my_topics";
+
+// 发起凭证：存在这个浏览器里，用来证明「这个话题是我发的」，进而允许删除
+function getOwnerKey(): string {
+  let key = localStorage.getItem(OWNER_KEY_STORAGE);
+  if (!key) {
+    key = crypto.randomUUID();
+    localStorage.setItem(OWNER_KEY_STORAGE, key);
+  }
+  return key;
+}
+
+function rememberMyTopic(topicId: string) {
+  try {
+    const raw = localStorage.getItem(MY_TOPICS_STORAGE);
+    const ids = raw ? (JSON.parse(raw) as string[]) : [];
+    if (!ids.includes(topicId)) {
+      localStorage.setItem(MY_TOPICS_STORAGE, JSON.stringify([...ids, topicId]));
+    }
+  } catch {
+    // 本地记录失败不影响发布
+  }
+}
 
 export default function TopicForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [body, setBody] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -28,6 +57,7 @@ export default function TopicForm() {
   const titleLength = title.trim().length;
   const summaryLength = summary.trim().length;
   const bodyLength = body.trim().length;
+  const pwdLength = deletePassword.trim().length;
 
   function validate(): Errors {
     const next: Errors = {};
@@ -44,6 +74,11 @@ export default function TopicForm() {
     } else if (bodyLength > BODY_MAX) {
       next.body = `正文最多 ${BODY_MAX} 字，当前 ${bodyLength} 字。`;
     }
+    if (pwdLength > 0 && pwdLength < DELETE_PWD_MIN) {
+      next.deletePassword = `删除密码至少 ${DELETE_PWD_MIN} 字，当前 ${pwdLength} 字。`;
+    } else if (pwdLength > DELETE_PWD_MAX) {
+      next.deletePassword = `删除密码最多 ${DELETE_PWD_MAX} 字。`;
+    }
     return next;
   }
 
@@ -55,13 +90,20 @@ export default function TopicForm() {
     if (Object.keys(next).length > 0) return;
 
     setBusy(true);
-    const result = await createTopic({ title, summary, body });
+    const result = await createTopic({
+      title,
+      summary,
+      body,
+      ownerKey: getOwnerKey(),
+      deletePassword: deletePassword.trim() || undefined,
+    });
     setBusy(false);
 
     if (!result.ok) {
       setFormError(result.error ?? "创建失败，请稍后再试。");
       return;
     }
+    rememberMyTopic(result.id);
     router.push(`/topics/${result.id}`);
   }
 
@@ -125,6 +167,31 @@ export default function TopicForm() {
         disabled={busy}
       />
       {errors.body && <p className="field-error">{errors.body}</p>}
+
+      <label className="field-label" htmlFor="delete-password">
+        删除密码（可选，{DELETE_PWD_MIN}–{DELETE_PWD_MAX} 位；留空则只有本浏览器能删，换浏览器就删不了）
+      </label>
+      <input
+        id="delete-password"
+        type="password"
+        className={
+          errors.deletePassword
+            ? "field field-plain field-invalid"
+            : "field field-plain"
+        }
+        value={deletePassword}
+        maxLength={DELETE_PWD_MAX}
+        onChange={(event) => {
+          setDeletePassword(event.target.value);
+          setErrors((prev) => ({ ...prev, deletePassword: undefined }));
+        }}
+        aria-invalid={Boolean(errors.deletePassword)}
+        placeholder="设一个只有你自己知道的密码，用它在任何浏览器都能删这个话题"
+        disabled={busy}
+      />
+      {errors.deletePassword && (
+        <p className="field-error">{errors.deletePassword}</p>
+      )}
 
       {formError && <p className="field-error">{formError}</p>}
 

@@ -2,8 +2,36 @@
 
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
+import { moderateText } from "@/lib/moderate";
 import { REPORT_REASONS } from "@/lib/types";
 import type { RefuteType, VoteValue } from "@/lib/types";
+
+/**
+ * Fire-and-forget 异步 AI 筛查——主流程绝不 await 它
+ * Vercel Serverless 在 response 发出去后还能继续跑一小会儿，免费模型 1–3 秒就能返回
+ * 就算超时/失败也完全静默，不影响 chain 连续性
+ */
+async function _saveModeration(
+  entityType: "topic" | "comment",
+  entityId: string,
+  text: string
+) {
+  try {
+    const result = await moderateText(text);
+    await supabase.from("moderations").upsert(
+      {
+        entity_type: entityType,
+        entity_id: entityId,
+        status: result.status,
+        model: result.model,
+        reason: result.reason,
+      },
+      { onConflict: "entity_type,entity_id" }
+    );
+  } catch {
+    // 兜底：什么都不做，绝不冒泡
+  }
+}
 
 export interface SubmitInput {
   topicId: string;
@@ -18,6 +46,8 @@ const TITLE_MAX = 60;
 const SUMMARY_MAX = 120;
 const BODY_MIN = 20;
 const BODY_MAX = 2000;
+const DELETE_PWD_MIN = 6;
+const DELETE_PWD_MAX = 40;
 
 // 话题 id 用「标题里的英文数字 + 随机尾巴」，保证短、可读、不重复
 function makeTopicId(title: string): string {
@@ -33,10 +63,13 @@ export async function createTopic(input: {
   title: string;
   summary: string;
   body: string;
+  ownerKey: string;
+  deletePassword?: string;
 }) {
   const title = input.title.trim();
   const body = input.body.trim().replace(/\r\n/g, "\n");
   let summary = input.summary.trim().replace(/\s+/g, " ");
+  const deletePassword = (input.deletePassword ?? "").trim();
 
   if (title.length < TITLE_MIN || title.length > TITLE_MAX) {
     return { ok: false as const, error: `话题标题需 ${TITLE_MIN}–${TITLE_MAX} 字。` };
@@ -47,9 +80,30 @@ export async function createTopic(input: {
   if (body.length < BODY_MIN || body.length > BODY_MAX) {
     return { ok: false as const, error: `话题正文需 ${BODY_MIN}–${BODY_MAX} 字。` };
   }
+  if (input.ownerKey.length < 8 || input.ownerKey.length > 64) {
+    return { ok: false as const, error: "发起凭证无效，请刷新页面重试。" };
+  }
+  if (deletePassword.length > 0 && deletePassword.length < DELETE_PWD_MIN) {
+    return { ok: false as const, error: `删除密码至少 ${DELETE_PWD_MIN} 字，留空则不设置密码删除方式。` };
+  }
+  if (deletePassword.length > DELETE_PWD_MAX) {
+    return { ok: false as const, error: `删除密码最多 ${DELETE_PWD_MAX} 字。` };
+  }
   // 没填简介就自动取正文前一句，避免卡片上留空
   if (summary.length === 0) {
     summary = body.slice(0, SUMMARY_MAX).replace(/\n+/g, " ");
+  }
+
+  // 密码哈希（调用数据库函数做 bcrypt）
+  let deletePasswordHash: string | null = null;
+  if (deletePassword.length > 0) {
+    const { data: hash, error: hashErr } = await supabase.rpc("hash_delete_password", {
+      p_pwd: deletePassword,
+    });
+    if (hashErr) {
+      return { ok: false as const, error: `密码加密失败：${hashErr.message}` };
+    }
+    deletePasswordHash = (hash as string) ?? null;
   }
 
   // id 冲突（极小概率）时换一个尾巴重试
@@ -57,12 +111,21 @@ export async function createTopic(input: {
     const id = makeTopicId(title);
     const { data, error } = await supabase
       .from("topics")
-      .insert({ id, title, summary, body })
+      .insert({
+        id,
+        title,
+        summary,
+        body,
+        owner_key: input.ownerKey,
+        delete_password_hash: deletePasswordHash,
+      })
       .select("id")
       .single();
 
     if (!error) {
       revalidatePath("/");
+      // 异步触发 AI 筛查，不阻塞返回
+      void _saveModeration("topic", data.id as string, `${title}\n${body}`);
       return { ok: true as const, id: data.id as string };
     }
     if (error.code !== "23505") {
@@ -71,6 +134,53 @@ export async function createTopic(input: {
   }
 
   return { ok: false as const, error: "创建话题失败：编号重复，请重试。" };
+}
+
+export async function deleteTopic(input: {
+  topicId: string;
+  ownerKey?: string;
+  deletePassword?: string;
+}) {
+  if (!input.topicId) {
+    return { ok: false as const, error: "话题编号无效。" };
+  }
+
+  // owner_key 模式优先（本浏览器发起的最方便）
+  if (input.ownerKey && input.ownerKey.length >= 8) {
+    const { data, error } = await supabase.rpc("delete_topic", {
+      p_id: input.topicId,
+      p_secret: input.ownerKey,
+    });
+    if (error) {
+      return { ok: false as const, error: `删除失败：${error.message}` };
+    }
+    if (data) {
+      revalidatePath("/");
+      return { ok: true as const };
+    }
+  }
+
+  // 密码模式（owner_key 对不上或没传时才走这里）
+  const pwd = (input.deletePassword ?? "").trim();
+  if (pwd.length >= DELETE_PWD_MIN && pwd.length <= DELETE_PWD_MAX) {
+    const { data, error } = await supabase.rpc("delete_topic", {
+      p_id: input.topicId,
+      p_secret: `pwd:${pwd}`,
+    });
+    if (error) {
+      return { ok: false as const, error: `删除失败：${error.message}` };
+    }
+    if (data) {
+      revalidatePath("/");
+      return { ok: true as const };
+    }
+    return { ok: false as const, error: "删除密码不对。" };
+  }
+
+  return {
+    ok: false as const,
+    error: "你不是这个浏览器发的话题，也没填密码，无法删除。",
+  };
 }
 
 export async function submitComment(input: SubmitInput) {
@@ -135,6 +245,13 @@ export async function submitComment(input: SubmitInput) {
   // 让列表页的评论数、最后活动时间跟着更新
   revalidatePath("/");
   revalidatePath(`/topics/${input.topicId}`);
+
+  // 异步触发 AI 筛查，不阻塞返回
+  void _saveModeration(
+    "comment",
+    data.id as string,
+    `${author}：${reason}${quote ? `\n反驳部分：${quote}` : ""}`
+  );
 
   return { ok: true, comment: data };
 }

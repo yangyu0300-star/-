@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import DeleteTopic from "@/components/DeleteTopic";
 import TopicDetail from "@/components/TopicDetail";
 import { getCommentsByTopic, getTopic } from "@/lib/db";
 
@@ -50,6 +51,8 @@ export default async function TopicPage({
         </article>
 
         <TopicDetail topicId={topic.id} initialComments={comments} />
+
+        <DeleteTopic topicId={topic.id} />
       </main>
     </>
   );

@@ -82,7 +82,32 @@ export async function getCommentsByTopic(topicId: string): Promise<Comment[]> {
     .order("created_at", { ascending: true });
 
   if (error) throw error;
-  return (data as CommentRow[]).map(fromCommentRow);
+  const rows = data as CommentRow[];
+
+  // 一次性把这些评论的筛查结果拉出来（LEFT JOIN 等价）
+  if (rows.length === 0) return [];
+  const ids = rows.map((r) => r.id);
+
+  const { data: mods } = await supabase
+    .from("moderations")
+    .select("entity_id, status, reason")
+    .eq("entity_type", "comment")
+    .in("entity_id", ids);
+
+  const modMap = new Map<string, { status: string; reason: string | null }>();
+  for (const m of mods ?? []) {
+    modMap.set(m.entity_id, { status: m.status, reason: m.reason });
+  }
+
+  return rows.map((row) => {
+    const base = fromCommentRow(row);
+    const mod = modMap.get(row.id);
+    return {
+      ...base,
+      moderationFlagged: mod?.status === "flagged",
+      moderationReason: mod?.reason ?? null,
+    } as Comment;
+  });
 }
 
 export function fromTopicRow(row: TopicRow): Topic {
