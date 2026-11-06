@@ -124,8 +124,8 @@ export async function createTopic(input: {
 
     if (!error) {
       revalidatePath("/");
-      // 同步等 AI 筛查跑完，确保 moderations 表有记录
-      await _saveModeration("topic", data.id as string, `${title}\n${body}`);
+      // AI 筛查挂起：后台静默跑，不阻塞发帖；跑成不成功都不影响主流程
+      void _saveModeration("topic", data.id as string, `${title}\n${body}`);
       return { ok: true as const, id: data.id as string };
     }
     if (error.code !== "23505") {
@@ -246,8 +246,8 @@ export async function submitComment(input: SubmitInput) {
   revalidatePath("/");
   revalidatePath(`/topics/${input.topicId}`);
 
-  // 同步等 AI 筛查跑完，确保 moderations 表有记录
-  await _saveModeration(
+  // AI 筛查挂起：后台静默跑，不阻塞发帖；跑成不成功都不影响主流程
+  void _saveModeration(
     "comment",
     data.id as string,
     `${author}：${reason}${quote ? `\n反驳部分：${quote}` : ""}`
