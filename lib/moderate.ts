@@ -60,7 +60,7 @@ export async function moderateText(text: string): Promise<ModerationResult> {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
         "HTTP-Referer": "https://boxuezhe.cc",
-        "X-Title": "驳学者",
+        "X-Title": "boxuezhe.cc",
       },
       body: JSON.stringify({
         model: MODEL,
