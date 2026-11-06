@@ -5,8 +5,8 @@
  *
  * 设计原则：
  *  - Best effort：AI 挂了 / 超时 / 返回 5xx → 静默跳过，绝不阻断主流程
- *  - 8 秒超时：用 after() 在响应之后跑，不占用户等待时间
- *  - 免费模型：google/gemma-4-26b-a4b-it:free（Gemma 3 系列 free 通道已下线，会 404）
+ *  - 响应之后跑：调用方用 after() 安排，不占用户等待时间
+ *  - 免费模型不稳定：按顺序依次降级，遇到 404/429/5xx 换下一个
  *  - 只扫三类：违法违规 / 明显人身攻击 / 色情低俗
  *  - 尖锐的反驳观点 ≠ 风险——我们是驳学者，prompt 里专门排除这个
  */
@@ -19,8 +19,15 @@ export interface ModerationResult {
   reason: string | null;
 }
 
-const MODEL = "google/gemma-4-26b-a4b-it:free";
-const TIMEOUT_MS = 8000;
+// 线上可用的免费模型，按「质量/稳定性」排序；某个挂了就换下一个
+const MODELS = [
+  "google/gemma-4-26b-a4b-it:free",
+  "google/gemma-4-31b-it:free",
+  "nvidia/nemotron-3.5-lightning:free",
+  "liquid/lfm-2.5-2.6b:free",
+] as const;
+
+const TIMEOUT_MS = 3500;
 const MAX_INPUT_CHARS = 4000;
 
 const SYSTEM_PROMPT = `你是一个中文社区的内容筛查员，社区叫"驳学者"，是人们用来互相反驳、辩论、接力观点的。你必须区分"激烈但合法的观点反驳"和"真正违规的内容"。
@@ -42,14 +49,11 @@ const SYSTEM_PROMPT = `你是一个中文社区的内容筛查员，社区叫"�
 如果无法判断就返回 {"status": "passed", "reason": null}。
 不要输出任何 JSON 以外的文字。`;
 
-export async function moderateText(text: string): Promise<ModerationResult> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return { status: "error", model: MODEL, reason: "no api key configured" };
-  }
-
-  const truncated = text.length > MAX_INPUT_CHARS ? text.slice(0, MAX_INPUT_CHARS) : text;
-
+async function callModel(
+  apiKey: string,
+  model: string,
+  text: string
+): Promise<ModerationResult> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -63,10 +67,10 @@ export async function moderateText(text: string): Promise<ModerationResult> {
         "X-Title": "boxuezhe.cc",
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: truncated },
+          { role: "user", content: text },
         ],
         temperature: 0,
         max_tokens: 200,
@@ -84,7 +88,7 @@ export async function moderateText(text: string): Promise<ModerationResult> {
       }
       return {
         status: "error",
-        model: MODEL,
+        model,
         reason: `http ${res.status}${detail ? `: ${detail}` : ""}`,
       };
     }
@@ -93,13 +97,13 @@ export async function moderateText(text: string): Promise<ModerationResult> {
     const raw: string | undefined = data?.choices?.[0]?.message?.content;
 
     if (!raw) {
-      return { status: "error", model: MODEL, reason: "empty response" };
+      return { status: "error", model, reason: "empty response" };
     }
 
     // 从模型输出里抠 JSON（免费小模型可能输出 markdown code fence）
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return { status: "error", model: MODEL, reason: "no json in response" };
+      return { status: "error", model, reason: "no json in response" };
     }
 
     const parsed = JSON.parse(jsonMatch[0]) as {
@@ -112,16 +116,44 @@ export async function moderateText(text: string): Promise<ModerationResult> {
 
     return {
       status,
-      model: MODEL,
+      model,
       reason: typeof parsed.reason === "string" ? parsed.reason : null,
     };
   } catch (err) {
     return {
       status: "error",
-      model: MODEL,
+      model,
       reason: err instanceof Error ? err.message : String(err),
     };
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function moderateText(text: string): Promise<ModerationResult> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    return { status: "error", model: MODELS[0], reason: "no api key configured" };
+  }
+
+  const truncated = text.length > MAX_INPUT_CHARS ? text.slice(0, MAX_INPUT_CHARS) : text;
+
+  let last: ModerationResult | null = null;
+
+  for (const model of MODELS) {
+    const result = await callModel(apiKey, model, truncated);
+    if (result.status !== "error") return result;
+
+    last = result;
+
+    // 401/403 是 key 本身的问题，换模型也没用
+    if (
+      result.reason?.startsWith("http 401") ||
+      result.reason?.startsWith("http 403")
+    ) {
+      return result;
+    }
+  }
+
+  return last ?? { status: "error", model: MODELS[0], reason: "no model tried" };
 }
