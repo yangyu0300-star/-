@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReplyForm from "./ReplyForm";
 import {
   MODERATION_FLAGGED_HINT,
@@ -12,6 +12,7 @@ import {
   VOTE_LABEL,
 } from "@/lib/types";
 import type { Comment, RefuteType, VoteValue } from "@/lib/types";
+import { QUALITY_HINT, QUALITY_LABEL, computeQualityLabels } from "@/lib/quality";
 import { submitComment, submitReport, submitVote } from "@/app/actions";
 
 function adaptFromActionRow(row: {
@@ -71,6 +72,7 @@ export default function TopicDetail({
 }) {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const tail = comments.length > 0 ? comments[comments.length - 1] : null;
+  const qualityLabels = useMemo(() => computeQualityLabels(comments), [comments]);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   const [reportFor, setReportFor] = useState<string | null>(null);
@@ -160,6 +162,10 @@ export default function TopicDetail({
 
       <p className="vote-hint">{VOTE_HINT}</p>
 
+      {Object.keys(qualityLabels).length > 0 && (
+        <p className="vote-hint">{QUALITY_HINT}</p>
+      )}
+
       {voteError && <p className="field-error">{voteError}</p>}
 
       <div className="chain">
@@ -188,6 +194,11 @@ export default function TopicDetail({
                 <span className={`badge badge-${comment.refuteType}`}>
                   {REFUTE_LABEL[comment.refuteType]}
                 </span>
+                {qualityLabels[comment.id] && (
+                  <span className={`badge badge-${qualityLabels[comment.id]}`}>
+                    {QUALITY_LABEL[qualityLabels[comment.id]]}
+                  </span>
+                )}
                 <span>第 {index + 1} 环</span>
                 <span>{comment.createdAt}</span>
               </div>

@@ -221,6 +221,16 @@ a {
   color: var(--amber);
 }
 
+.badge-solid {
+  background: #e9f0ea;
+  color: #3d6b4a;
+}
+
+.badge-flawed {
+  background: #eef0f4;
+  color: #55606f;
+}
+
 .quote {
   margin: 0 0 10px;
   padding: 8px 12px;
