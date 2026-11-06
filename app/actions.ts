@@ -7,9 +7,8 @@ import { REPORT_REASONS } from "@/lib/types";
 import type { RefuteType, VoteValue } from "@/lib/types";
 
 /**
- * Fire-and-forget 异步 AI 筛查——主流程绝不 await 它
- * Vercel Serverless 在 response 发出去后还能继续跑一小会儿，免费模型 1–3 秒就能返回
- * 就算超时/失败也完全静默，不影响 chain 连续性
+ * 同步 AI 筛查——必须 await，不然 Vercel Serverless 在 response 发出后会掐掉异步任务
+ * 免费模型 1–3 秒返回，超时/失败返回 status=error 不阻断 chain
  */
 async function _saveModeration(
   entityType: "topic" | "comment",
@@ -18,7 +17,7 @@ async function _saveModeration(
 ) {
   try {
     const result = await moderateText(text);
-    await supabase.from("moderations").upsert(
+    const { error } = await supabase.from("moderations").upsert(
       {
         entity_type: entityType,
         entity_id: entityId,
@@ -28,8 +27,9 @@ async function _saveModeration(
       },
       { onConflict: "entity_type,entity_id" }
     );
-  } catch {
-    // 兜底：什么都不做，绝不冒泡
+    if (error) console.error("[mod] upsert failed:", error.message);
+  } catch (err) {
+    console.error("[mod] unexpected error:", err);
   }
 }
 
@@ -124,8 +124,8 @@ export async function createTopic(input: {
 
     if (!error) {
       revalidatePath("/");
-      // 异步触发 AI 筛查，不阻塞返回
-      void _saveModeration("topic", data.id as string, `${title}\n${body}`);
+      // 同步等 AI 筛查跑完，确保 moderations 表有记录
+      await _saveModeration("topic", data.id as string, `${title}\n${body}`);
       return { ok: true as const, id: data.id as string };
     }
     if (error.code !== "23505") {
@@ -246,8 +246,8 @@ export async function submitComment(input: SubmitInput) {
   revalidatePath("/");
   revalidatePath(`/topics/${input.topicId}`);
 
-  // 异步触发 AI 筛查，不阻塞返回
-  void _saveModeration(
+  // 同步等 AI 筛查跑完，确保 moderations 表有记录
+  await _saveModeration(
     "comment",
     data.id as string,
     `${author}：${reason}${quote ? `\n反驳部分：${quote}` : ""}`
