@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ReplyForm from "./ReplyForm";
 import TranslateButton from "./TranslateButton";
-import { OPENING_PHRASE, REPORT_REASONS } from "@/lib/types";
+import { REPORT_REASONS } from "@/lib/types";
 import type { Comment, RefuteType, VoteValue } from "@/lib/types";
 import { computeQualityLabels } from "@/lib/quality";
 import { msg, reportReasonLabel, type Locale } from "@/lib/i18n";
@@ -205,7 +205,10 @@ export default function TopicDetail({
 
               <p className="comment-text">
                 <span className="opening">
-                  {OPENING_PHRASE[comment.refuteType]}
+                  {msg(
+                    locale,
+                    comment.refuteType === "full" ? "openingFull" : "openingPartial"
+                  )}
                 </span>
                 {comment.reason}
               </p>

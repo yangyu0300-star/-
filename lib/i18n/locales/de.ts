@@ -53,6 +53,8 @@ export const de: Record<MsgKey, string> = {
   translateHide: "Übersetzung ausblenden",
   translating: "Wird übersetzt…",
   translateFailed: "Übersetzung fehlgeschlagen. Bitte später erneut versuchen.",
+  openingFull: "Ich stimme der Schlussfolgerung des vorherigen Kommentars nicht zu: ",
+  openingPartial: "Einem Teil stimme ich zu, dem Folgenden aber nicht: ",
 
   targetTail: "Deine Widerlegung richtet sich an den letzten Kommentar der Kette:",
   targetTailRemoved:

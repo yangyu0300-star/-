@@ -78,6 +78,8 @@ const zh = {
   translateHide: "收起翻译",
   translating: "翻译中…",
   translateFailed: "翻译失败，请稍后再试。",
+  openingFull: "我不同意上一条评论的结论：",
+  openingPartial: "我认同其中一部分，但我不同意以下内容：",
 
   targetTail: "你的反驳对象是链尾唯一一条评论：",
   targetTailRemoved:
@@ -202,6 +204,8 @@ const en: Record<MsgKey, string> = {
   translateHide: "Hide translation",
   translating: "Translating…",
   translateFailed: "Translation failed, please try again later.",
+  openingFull: "I disagree with the conclusion of the comment above: ",
+  openingPartial: "I agree with part of it, but I disagree with the following: ",
 
   targetTail: "Your rebuttal targets the only last comment in the chain:",
   targetTailRemoved:

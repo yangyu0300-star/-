@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
-import { OPENING_PHRASE, REPORT_REASONS } from "@/lib/types";
+import { REPORT_REASONS } from "@/lib/types";
 import { translateTo } from "@/lib/translate";
 import { isLocale, type Locale } from "@/lib/i18n";
 import type { RefuteType, VoteValue } from "@/lib/types";
@@ -333,12 +333,12 @@ export async function translateContent(input: {
   } else {
     const { data, error } = await supabase
       .from("comments")
-      .select("refute_type, reason")
+      .select("reason")
       .eq("id", input.entityId)
       .maybeSingle();
     if (error || !data) return { ok: false, error: "读取评论失败。" };
-    const type = data.refute_type as RefuteType;
-    source = `${OPENING_PHRASE[type] ?? ""}${data.reason}`;
+    // 开场语随界面语言显示，属于界面文案，不参与机器翻译
+    source = data.reason;
   }
 
   try {

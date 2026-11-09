@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { OPENING_PHRASE, REMOVED_PLACEHOLDER } from "@/lib/types";
+import { REMOVED_PLACEHOLDER } from "@/lib/types";
 import type { Comment, RefuteType } from "@/lib/types";
 import { msg, type Locale } from "@/lib/i18n";
 
@@ -169,7 +169,9 @@ export default function ReplyForm({
 
           <div className="locked-line">
             <span className="locked-tag">{msg(locale, "lockedTag")}</span>
-            <span>{OPENING_PHRASE[refuteType]}</span>
+            <span>
+              {msg(locale, refuteType === "full" ? "openingFull" : "openingPartial")}
+            </span>
           </div>
           <textarea
             className={errors.reason ? "field field-invalid" : "field"}

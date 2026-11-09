@@ -53,6 +53,8 @@ export const pt: Record<MsgKey, string> = {
   translateHide: "Ocultar tradução",
   translating: "Traduzindo…",
   translateFailed: "A tradução falhou. Tente novamente mais tarde.",
+  openingFull: "Não concordo com a conclusão do comentário anterior: ",
+  openingPartial: "Concordo com uma parte, mas não com o seguinte: ",
 
   targetTail: "Sua refutação mira o último comentário da corrente:",
   targetTailRemoved:

@@ -53,6 +53,8 @@ export const ko: Record<MsgKey, string> = {
   translateHide: "번역 접기",
   translating: "번역 중…",
   translateFailed: "번역에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+  openingFull: "저는 앞선 댓글의 결론에 동의하지 않습니다: ",
+  openingPartial: "일부에는 동의하지만, 다음 내용에는 동의하지 않습니다: ",
 
   targetTail: "당신의 반박 대상은 사슬 맨 끝의 유일한 댓글입니다:",
   targetTailRemoved:

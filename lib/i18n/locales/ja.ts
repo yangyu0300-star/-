@@ -53,6 +53,8 @@ export const ja: Record<MsgKey, string> = {
   translateHide: "翻訳を閉じる",
   translating: "翻訳中…",
   translateFailed: "翻訳に失敗しました。しばらくしてからお試しください。",
+  openingFull: "私は前のコメントの結論に同意しません：",
+  openingPartial: "一部には同意しますが、次の内容には同意しません：",
 
   targetTail: "あなたの反論の対象は、連鎖の末尾にある唯一のコメントです：",
   targetTailRemoved:
