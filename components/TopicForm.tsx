@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createTopic } from "@/app/actions";
+import { msg, type Locale } from "@/lib/i18n";
 
 const TITLE_MIN = 6;
 const TITLE_MAX = 60;
@@ -44,7 +45,7 @@ function rememberMyTopic(topicId: string) {
   }
 }
 
-export default function TopicForm() {
+export default function TopicForm({ locale }: { locale: Locale }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -62,22 +63,25 @@ export default function TopicForm() {
   function validate(): Errors {
     const next: Errors = {};
     if (titleLength < TITLE_MIN) {
-      next.title = `标题至少 ${TITLE_MIN} 字，当前 ${titleLength} 字。`;
+      next.title = msg(locale, "errTitleMin", { min: TITLE_MIN, n: titleLength });
     } else if (titleLength > TITLE_MAX) {
-      next.title = `标题最多 ${TITLE_MAX} 字，当前 ${titleLength} 字。`;
+      next.title = msg(locale, "errTitleMax", { max: TITLE_MAX, n: titleLength });
     }
     if (summaryLength > SUMMARY_MAX) {
-      next.summary = `简介最多 ${SUMMARY_MAX} 字，当前 ${summaryLength} 字。`;
+      next.summary = msg(locale, "errSummaryMax", { max: SUMMARY_MAX, n: summaryLength });
     }
     if (bodyLength < BODY_MIN) {
-      next.body = `正文至少 ${BODY_MIN} 字，当前 ${bodyLength} 字。`;
+      next.body = msg(locale, "errBodyMin", { min: BODY_MIN, n: bodyLength });
     } else if (bodyLength > BODY_MAX) {
-      next.body = `正文最多 ${BODY_MAX} 字，当前 ${bodyLength} 字。`;
+      next.body = msg(locale, "errBodyMax", { max: BODY_MAX, n: bodyLength });
     }
     if (pwdLength > 0 && pwdLength < DELETE_PWD_MIN) {
-      next.deletePassword = `删除密码至少 ${DELETE_PWD_MIN} 字，当前 ${pwdLength} 字。`;
+      next.deletePassword = msg(locale, "errPwdMin", {
+        min: DELETE_PWD_MIN,
+        n: pwdLength,
+      });
     } else if (pwdLength > DELETE_PWD_MAX) {
-      next.deletePassword = `删除密码最多 ${DELETE_PWD_MAX} 字。`;
+      next.deletePassword = msg(locale, "errPwdMax", { max: DELETE_PWD_MAX });
     }
     return next;
   }
@@ -100,7 +104,7 @@ export default function TopicForm() {
     setBusy(false);
 
     if (!result.ok) {
-      setFormError(result.error ?? "创建失败，请稍后再试。");
+      setFormError(result.error ?? msg(locale, "submitFailed"));
       return;
     }
     rememberMyTopic(result.id);
@@ -110,7 +114,7 @@ export default function TopicForm() {
   return (
     <form className="reply" onSubmit={submit} noValidate>
       <label className="field-label" htmlFor="topic-title">
-        话题标题（要有争议性，让人想反驳）
+        {msg(locale, "formTitleLabel")}
       </label>
       <input
         id="topic-title"
@@ -124,13 +128,13 @@ export default function TopicForm() {
           setErrors((prev) => ({ ...prev, title: undefined }));
         }}
         aria-invalid={Boolean(errors.title)}
-        placeholder="例如：「算法推荐让人越来越极端」这个说法站得住脚吗？"
+        placeholder={msg(locale, "formTitlePlaceholder")}
         disabled={busy}
       />
       {errors.title && <p className="field-error">{errors.title}</p>}
 
       <label className="field-label" htmlFor="topic-summary">
-        一句话简介（可留空，自动取正文开头）
+        {msg(locale, "formSummaryLabel")}
       </label>
       <input
         id="topic-summary"
@@ -144,15 +148,15 @@ export default function TopicForm() {
           setErrors((prev) => ({ ...prev, summary: undefined }));
         }}
         aria-invalid={Boolean(errors.summary)}
-        placeholder="一句话说清这个争议点"
+        placeholder={msg(locale, "formSummaryPlaceholder")}
         disabled={busy}
       />
       {errors.summary && <p className="field-error">{errors.summary}</p>}
 
       <div className="field-head">
-        <span>话题正文（交代背景和双方观点）</span>
+        <span>{msg(locale, "formBodyLabel")}</span>
         <span className={bodyLength > BODY_MAX ? "count over" : "count"}>
-          {bodyLength} / {BODY_MAX}，最少 {BODY_MIN}
+          {msg(locale, "countRange", { n: bodyLength, max: BODY_MAX, min: BODY_MIN })}
         </span>
       </div>
       <textarea
@@ -163,13 +167,16 @@ export default function TopicForm() {
           setErrors((prev) => ({ ...prev, body: undefined }));
         }}
         aria-invalid={Boolean(errors.body)}
-        placeholder="说清楚这个问题的两三种立场，以及争论的焦点在哪里。段落之间空一行。"
+        placeholder={msg(locale, "formBodyPlaceholder")}
         disabled={busy}
       />
       {errors.body && <p className="field-error">{errors.body}</p>}
 
       <label className="field-label" htmlFor="delete-password">
-        删除密码（可选，{DELETE_PWD_MIN}–{DELETE_PWD_MAX} 位；留空则只有本浏览器能删，换浏览器就删不了）
+        {msg(locale, "formPwdLabel", {
+          min: DELETE_PWD_MIN,
+          max: DELETE_PWD_MAX,
+        })}
       </label>
       <input
         id="delete-password"
@@ -186,7 +193,7 @@ export default function TopicForm() {
           setErrors((prev) => ({ ...prev, deletePassword: undefined }));
         }}
         aria-invalid={Boolean(errors.deletePassword)}
-        placeholder="设一个只有你自己知道的密码，用它在任何浏览器都能删这个话题"
+        placeholder={msg(locale, "formPwdPlaceholder")}
         disabled={busy}
       />
       {errors.deletePassword && (
@@ -196,11 +203,9 @@ export default function TopicForm() {
       {formError && <p className="field-error">{formError}</p>}
 
       <div className="reply-foot">
-        <span className="hint">
-          话题发布后不能修改，第一条评论由你在话题页接上。
-        </span>
+        <span className="hint">{msg(locale, "formFootHint")}</span>
         <button type="submit" className="submit" disabled={busy}>
-          {busy ? "发布中…" : "发布话题"}
+          {busy ? msg(locale, "formBusy") : msg(locale, "formSubmit")}
         </button>
       </div>
     </form>

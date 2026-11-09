@@ -2,16 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import ReplyForm from "./ReplyForm";
-import {
-  OPENING_PHRASE,
-  REFUTE_LABEL,
-  REMOVED_PLACEHOLDER,
-  REPORT_REASONS,
-  VOTE_HINT,
-  VOTE_LABEL,
-} from "@/lib/types";
+import TranslateButton from "./TranslateButton";
+import { OPENING_PHRASE, REPORT_REASONS } from "@/lib/types";
 import type { Comment, RefuteType, VoteValue } from "@/lib/types";
-import { QUALITY_HINT, QUALITY_LABEL, computeQualityLabels } from "@/lib/quality";
+import { computeQualityLabels } from "@/lib/quality";
+import { msg, reportReasonLabel, type Locale } from "@/lib/i18n";
 import { submitComment, submitReport, submitVote } from "@/app/actions";
 
 function adaptFromActionRow(row: {
@@ -61,9 +56,11 @@ function getVoterKey(): string {
 export default function TopicDetail({
   topicId,
   initialComments,
+  locale,
 }: {
   topicId: string;
   initialComments: Comment[];
+  locale: Locale;
 }) {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const tail = comments.length > 0 ? comments[comments.length - 1] : null;
@@ -100,7 +97,7 @@ export default function TopicDetail({
     setVoting(null);
 
     if (!result.ok) {
-      setVoteError(result.error ?? "投票失败，请稍后再试。");
+      setVoteError(result.error ?? msg(locale, "voteFailed"));
       return;
     }
 
@@ -126,7 +123,7 @@ export default function TopicDetail({
     setGlobalError(null);
     const result = await submitComment({ topicId, ...payload });
     if (!result.ok || !result.comment) {
-      setGlobalError(result.ok ? "提交失败，请稍后再试。" : (result.error ?? "未知错误"));
+      setGlobalError(result.ok ? msg(locale, "submitFailed") : (result.error ?? "unknown"));
       return;
     }
     const comment = adaptFromActionRow(result.comment);
@@ -140,7 +137,7 @@ export default function TopicDetail({
     setReportBusy(false);
 
     if (!result.ok) {
-      setReportError(result.error ?? "举报失败，请稍后再试。");
+      setReportError(result.error ?? msg(locale, "reportFailed"));
       return;
     }
 
@@ -151,14 +148,14 @@ export default function TopicDetail({
   return (
     <>
       <div className="section-head">
-        <h2>评论链</h2>
-        <span>共 {comments.length} 环 · 由上到下依次接力</span>
+        <h2>{msg(locale, "chainTitle")}</h2>
+        <span>{msg(locale, "chainMeta", { n: comments.length })}</span>
       </div>
 
-      <p className="vote-hint">{VOTE_HINT}</p>
+      <p className="vote-hint">{msg(locale, "voteHint")}</p>
 
       {Object.keys(qualityLabels).length > 0 && (
-        <p className="vote-hint">{QUALITY_HINT}</p>
+        <p className="vote-hint">{msg(locale, "qualityHint")}</p>
       )}
 
       {voteError && <p className="field-error">{voteError}</p>}
@@ -169,14 +166,18 @@ export default function TopicDetail({
             return (
               <article key={comment.id} className="comment comment-removed">
                 <div className="comment-head">
-                  <span className={`badge badge-removed`}>已移除</span>
-                  <span>第 {index + 1} 环</span>
+                  <span className="badge badge-removed">
+                    {msg(locale, "removedBadge")}
+                  </span>
+                  <span>{msg(locale, "ring", { n: index + 1 })}</span>
                   <span>{comment.createdAt}</span>
                 </div>
-                <p className="removed-text">{REMOVED_PLACEHOLDER}</p>
+                <p className="removed-text">{msg(locale, "removedText")}</p>
               </article>
             );
           }
+
+          const quality = qualityLabels[comment.id];
 
           return (
             <article
@@ -187,14 +188,14 @@ export default function TopicDetail({
               <div className="comment-head">
                 <span className="author">{comment.author}</span>
                 <span className={`badge badge-${comment.refuteType}`}>
-                  {REFUTE_LABEL[comment.refuteType]}
+                  {msg(locale, comment.refuteType === "full" ? "typeFull" : "typePartial")}
                 </span>
-                {qualityLabels[comment.id] && (
-                  <span className={`badge badge-${qualityLabels[comment.id]}`}>
-                    {QUALITY_LABEL[qualityLabels[comment.id]]}
+                {quality && (
+                  <span className={`badge badge-${quality}`}>
+                    {msg(locale, quality === "solid" ? "qualitySolid" : "qualityFlawed")}
                   </span>
                 )}
-                <span>第 {index + 1} 环</span>
+                <span>{msg(locale, "ring", { n: index + 1 })}</span>
                 <span>{comment.createdAt}</span>
               </div>
 
@@ -210,7 +211,7 @@ export default function TopicDetail({
               </p>
 
               <div className="vote-row">
-                {(Object.keys(VOTE_LABEL) as VoteValue[]).map((value) => (
+                {(Object.keys({ up: 1, down: 1 }) as VoteValue[]).map((value) => (
                   <button
                     key={value}
                     type="button"
@@ -219,7 +220,7 @@ export default function TopicDetail({
                     disabled={voting === comment.id}
                     onClick={() => handleVote(comment.id, value)}
                   >
-                    {VOTE_LABEL[value]}
+                    {msg(locale, value === "up" ? "voteUp" : "voteDown")}
                     <span className="vote-count">
                       {value === "up" ? comment.voteUp : comment.voteDown}
                     </span>
@@ -228,8 +229,13 @@ export default function TopicDetail({
               </div>
 
               <div className="comment-actions">
+                <TranslateButton
+                  entityType="comment"
+                  entityId={comment.id}
+                  locale={locale}
+                />
                 {reported.includes(comment.id) ? (
-                  <span className="reported-note">已举报，等待处理</span>
+                  <span className="reported-note">{msg(locale, "reportedNote")}</span>
                 ) : (
                   <button
                     type="button"
@@ -240,14 +246,14 @@ export default function TopicDetail({
                       setReportReason(REPORT_REASONS[0]);
                     }}
                   >
-                    举报这条评论
+                    {msg(locale, "reportToggle")}
                   </button>
                 )}
               </div>
 
               {reportFor === comment.id && (
                 <div className="report-panel">
-                  <p className="report-title">选择举报原因</p>
+                  <p className="report-title">{msg(locale, "reportTitle")}</p>
                   <div className="report-reasons">
                     {REPORT_REASONS.map((reason) => (
                       <button
@@ -257,7 +263,7 @@ export default function TopicDetail({
                         aria-pressed={reportReason === reason}
                         onClick={() => setReportReason(reason)}
                       >
-                        {reason}
+                        {reportReasonLabel(locale, reason)}
                       </button>
                     ))}
                   </div>
@@ -268,7 +274,7 @@ export default function TopicDetail({
                       className="report-cancel"
                       onClick={() => setReportFor(null)}
                     >
-                      取消
+                      {msg(locale, "cancel")}
                     </button>
                     <button
                       type="button"
@@ -276,7 +282,9 @@ export default function TopicDetail({
                       disabled={reportBusy}
                       onClick={() => handleReport(comment.id)}
                     >
-                      {reportBusy ? "提交中…" : "提交举报"}
+                      {reportBusy
+                        ? msg(locale, "reportBusy")
+                        : msg(locale, "reportSubmit")}
                     </button>
                   </div>
                 </div>
@@ -286,9 +294,13 @@ export default function TopicDetail({
         })}
       </div>
 
-      {globalError && <p className="field-error" style={{ marginTop: 14 }}>{globalError}</p>}
+      {globalError && (
+        <p className="field-error" style={{ marginTop: 14 }}>
+          {globalError}
+        </p>
+      )}
 
-      <ReplyForm tail={tail} onSubmit={handleReply} />
+      <ReplyForm tail={tail} onSubmit={handleReply} locale={locale} />
     </>
   );
 }

@@ -3,12 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteTopic } from "@/app/actions";
+import { msg, type Locale } from "@/lib/i18n";
 
 const OWNER_KEY_STORAGE = "rr_owner_key";
 const MY_TOPICS_STORAGE = "rr_my_topics";
 const DELETE_PWD_MIN = 6;
 
-export default function DeleteTopic({ topicId }: { topicId: string }) {
+export default function DeleteTopic({
+  topicId,
+  locale,
+}: {
+  topicId: string;
+  locale: Locale;
+}) {
   const router = useRouter();
   const [owned, setOwned] = useState(false);
   const [pwdOpen, setPwdOpen] = useState(false);
@@ -33,7 +40,7 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
     setBusy(false);
 
     if (!result.ok) {
-      setError(result.error ?? "删除失败，请稍后再试。");
+      setError(result.error ?? msg(locale, "deleteFailed"));
       return false;
     }
 
@@ -54,7 +61,7 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
   }
 
   async function handleBrowserDelete() {
-    if (!window.confirm("删除后话题和整条评论链都会消失，且无法恢复。确定删除？")) {
+    if (!window.confirm(msg(locale, "confirmDeleteText"))) {
       return;
     }
     const ownerKey = localStorage.getItem(OWNER_KEY_STORAGE) ?? "";
@@ -63,10 +70,10 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
 
   async function handlePasswordDelete() {
     if (pwd.trim().length < DELETE_PWD_MIN) {
-      setError(`删除密码至少 ${DELETE_PWD_MIN} 位。`);
+      setError(msg(locale, "errDeletePwdMin", { min: DELETE_PWD_MIN }));
       return;
     }
-    if (!window.confirm("删除后话题和整条评论链都会消失，且无法恢复。确定删除？")) {
+    if (!window.confirm(msg(locale, "confirmDeleteText"))) {
       return;
     }
     const ok = await doDelete({ deletePassword: pwd.trim() });
@@ -88,11 +95,9 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
             disabled={busy}
             onClick={handleBrowserDelete}
           >
-            {busy ? "删除中…" : "删除这个话题（本浏览器）"}
+            {busy ? msg(locale, "deleteBusy") : msg(locale, "browserDelete")}
           </button>
-          <span className="hint">
-            本浏览器是发起人，可以直接删。
-          </span>
+          <span className="hint">{msg(locale, "browserHint")}</span>
         </>
       ) : null}
 
@@ -102,13 +107,11 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
           className="delete-topic-link"
           onClick={() => setPwdOpen(true)}
         >
-          用删除密码删除
+          {msg(locale, "pwdLink")}
         </button>
       ) : (
         <div className="delete-topic-pwd">
-          <span className="hint">
-            如果你创建话题时设置了删除密码，在这里输入就能删：
-          </span>
+          <span className="hint">{msg(locale, "pwdHint")}</span>
           <input
             type="password"
             className="field field-plain"
@@ -118,7 +121,7 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
               setPwd(e.target.value);
               setError(null);
             }}
-            placeholder="输入删除密码"
+            placeholder={msg(locale, "pwdPlaceholder")}
             disabled={busy}
           />
           <div className="delete-topic-pwd-actions">
@@ -132,7 +135,7 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
               }}
               disabled={busy}
             >
-              取消
+              {msg(locale, "cancel")}
             </button>
             <button
               type="button"
@@ -140,7 +143,7 @@ export default function DeleteTopic({ topicId }: { topicId: string }) {
               disabled={busy}
               onClick={handlePasswordDelete}
             >
-              {busy ? "删除中…" : "确认删除"}
+              {busy ? msg(locale, "deleteBusy") : msg(locale, "confirmDelete")}
             </button>
           </div>
         </div>

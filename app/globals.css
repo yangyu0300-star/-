@@ -63,6 +63,29 @@ a {
   color: var(--ink-faint);
 }
 
+.lang-switch {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.lang-btn {
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.lang-btn[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 .rule-banner {
   margin: 0 0 28px;
   padding: 14px 18px;
@@ -324,7 +347,32 @@ a {
 }
 
 .comment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   margin-top: 10px;
+}
+
+.translate-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.translated-text {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #faf8f4;
+  border-left: 2px solid var(--line);
+  font-size: 14px;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+}
+
+.topic-translate {
+  margin: -18px 0 26px;
 }
 
 .report-toggle {

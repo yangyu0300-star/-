@@ -1,13 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { OPENING_PHRASE, REFUTE_LABEL, REMOVED_PLACEHOLDER } from "@/lib/types";
+import { OPENING_PHRASE, REMOVED_PLACEHOLDER } from "@/lib/types";
 import type { Comment, RefuteType } from "@/lib/types";
-
-const TYPE_DESC: Record<RefuteType, string> = {
-  full: "整条观点都不成立，包括它的前提。",
-  partial: "同意其中一部分，但有一处必须反驳。",
-};
+import { msg, type Locale } from "@/lib/i18n";
 
 const REASON_MIN = 20;
 const REASON_MAX = 2000;
@@ -24,6 +20,7 @@ type Errors = {
 export default function ReplyForm({
   tail,
   onSubmit,
+  locale,
 }: {
   tail: Comment | null;
   onSubmit: (payload: {
@@ -32,6 +29,7 @@ export default function ReplyForm({
     reason: string;
     targetQuote?: string;
   }) => void;
+  locale: Locale;
 }) {
   const [authorName, setAuthorName] = useState("");
   const [refuteType, setRefuteType] = useState<RefuteType | null>(null);
@@ -46,28 +44,28 @@ export default function ReplyForm({
     const next: Errors = {};
 
     if (trimmedAuthor.length === 0) {
-      next.author = "请留一个昵称。";
+      next.author = msg(locale, "errAuthorRequired");
     } else if (trimmedAuthor.length > AUTHOR_MAX) {
-      next.author = `昵称最多 ${AUTHOR_MAX} 字。`;
+      next.author = msg(locale, "errAuthorMax", { max: AUTHOR_MAX });
     }
 
     if (!refuteType) {
-      next.refuteType = "请先选择「完全反驳」或「部分反驳」。";
+      next.refuteType = msg(locale, "errTypeRequired");
     }
     if (reasonLength === 0) {
-      next.reason = "反驳理由不能为空。";
+      next.reason = msg(locale, "errReasonEmpty");
     } else if (reasonLength < REASON_MIN) {
-      next.reason = `反驳理由至少 ${REASON_MIN} 字，当前 ${reasonLength} 字。`;
+      next.reason = msg(locale, "errReasonMin", { min: REASON_MIN, n: reasonLength });
     } else if (reasonLength > REASON_MAX) {
-      next.reason = `反驳理由最多 ${REASON_MAX} 字，当前 ${reasonLength} 字。`;
+      next.reason = msg(locale, "errReasonMax", { max: REASON_MAX, n: reasonLength });
     }
 
     if (refuteType === "partial") {
       const quoteLength = targetQuote.trim().length;
       if (quoteLength === 0) {
-        next.targetQuote = "部分反驳必须指出具体反驳的是哪一部分。";
+        next.targetQuote = msg(locale, "errQuoteRequired");
       } else if (quoteLength > QUOTE_MAX) {
-        next.targetQuote = `引用请控制在 ${QUOTE_MAX} 字以内，当前 ${quoteLength} 字。`;
+        next.targetQuote = msg(locale, "errQuoteMax", { max: QUOTE_MAX, n: quoteLength });
       }
     }
 
@@ -104,19 +102,24 @@ export default function ReplyForm({
       <p className="reply-target">
         {tail ? (
           tail.status === "removed" ? (
-            <>你的反驳对象是链尾唯一一条评论，但它已被移除（{REMOVED_PLACEHOLDER}）。你仍然接在它后面，位置保留。</>
+            msg(locale, "targetTailRemoved", { removed: REMOVED_PLACEHOLDER })
           ) : (
             <>
-              你的反驳对象是链尾唯一一条评论：<strong>{tail.author}</strong>
-              （{REFUTE_LABEL[tail.refuteType]} · {tail.createdAt}）
+              {msg(locale, "targetTail")}
+              <strong>{tail.author}</strong>
+              {" · "}
+              {msg(locale, tail.refuteType === "full" ? "typeFull" : "typePartial")}
+              {` · ${tail.createdAt}`}
             </>
           )
         ) : (
-          <>这个话题还没有评论，你将成为第 1 环。</>
+          msg(locale, "targetFirst")
         )}
       </p>
 
-      <label className="field-label" htmlFor="author">你的昵称</label>
+      <label className="field-label" htmlFor="author">
+        {msg(locale, "authorLabel")}
+      </label>
       <input
         id="author"
         className={errors.author ? "field field-plain field-invalid" : "field field-plain"}
@@ -127,12 +130,12 @@ export default function ReplyForm({
           setErrors((prev) => ({ ...prev, author: undefined }));
         }}
         aria-invalid={Boolean(errors.author)}
-        placeholder="最多 20 字"
+        placeholder={msg(locale, "authorPlaceholder")}
       />
       {errors.author && <p className="field-error">{errors.author}</p>}
 
-      <div className="type-options" role="group" aria-label="选择反驳类型">
-        {(Object.keys(REFUTE_LABEL) as RefuteType[]).map((type) => (
+      <div className="type-options" role="group" aria-label={msg(locale, "typeGroup")}>
+        {(["full", "partial"] as RefuteType[]).map((type) => (
           <button
             key={type}
             type="button"
@@ -140,8 +143,12 @@ export default function ReplyForm({
             aria-pressed={refuteType === type}
             onClick={() => selectType(type)}
           >
-            <strong>{REFUTE_LABEL[type]}</strong>
-            <small>{TYPE_DESC[type]}</small>
+            <strong>
+              {msg(locale, type === "full" ? "typeFull" : "typePartial")}
+            </strong>
+            <small>
+              {msg(locale, type === "full" ? "typeFullDesc" : "typePartialDesc")}
+            </small>
           </button>
         ))}
       </div>
@@ -150,14 +157,18 @@ export default function ReplyForm({
       {refuteType && (
         <>
           <div className="field-head">
-            <span>反驳理由（开场语之外的内容）</span>
+            <span>{msg(locale, "reasonHeading")}</span>
             <span className={reasonLength > REASON_MAX ? "count over" : "count"}>
-              {reasonLength} / {REASON_MAX}，最少 {REASON_MIN}
+              {msg(locale, "countRange", {
+                n: reasonLength,
+                max: REASON_MAX,
+                min: REASON_MIN,
+              })}
             </span>
           </div>
 
           <div className="locked-line">
-            <span className="locked-tag">固定开场语 · 不可删改</span>
+            <span className="locked-tag">{msg(locale, "lockedTag")}</span>
             <span>{OPENING_PHRASE[refuteType]}</span>
           </div>
           <textarea
@@ -168,13 +179,13 @@ export default function ReplyForm({
               setErrors((prev) => ({ ...prev, reason: undefined }));
             }}
             aria-invalid={Boolean(errors.reason)}
-            placeholder="只写开场语之后的内容。说清楚上一条哪里不成立，为什么。"
+            placeholder={msg(locale, "reasonPlaceholder")}
           />
 
           {refuteType === "partial" && (
             <>
               <label className="field-label" htmlFor="target-quote">
-                你要反驳的是哪一部分？（引用或概括，必填）
+                {msg(locale, "quoteLabel")}
               </label>
               <input
                 id="target-quote"
@@ -189,7 +200,7 @@ export default function ReplyForm({
                   setErrors((prev) => ({ ...prev, targetQuote: undefined }));
                 }}
                 aria-invalid={Boolean(errors.targetQuote)}
-                placeholder="例如：上一条里「之后每一次收紧都会被当成背叛」这句"
+                placeholder={msg(locale, "quotePlaceholder")}
               />
             </>
           )}
@@ -200,11 +211,9 @@ export default function ReplyForm({
       {errors.targetQuote && <p className="field-error">{errors.targetQuote}</p>}
 
       <div className="reply-foot">
-        <span className="hint">
-          你的反驳会接在链尾，成为下一条评论唯一可反驳的对象。
-        </span>
+        <span className="hint">{msg(locale, "footHint")}</span>
         <button type="submit" className="submit">
-          接上这一环
+          {msg(locale, "replySubmit")}
         </button>
       </div>
     </form>

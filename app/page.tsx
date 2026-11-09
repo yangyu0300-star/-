@@ -1,5 +1,8 @@
 import Link from "next/link";
+import Topbar from "@/components/Topbar";
 import { getTopics } from "@/lib/db";
+import { getLocale } from "@/lib/i18n-server";
+import { msg } from "@/lib/i18n";
 
 // 话题数据随时会变，不在构建时预渲染，避免构建期依赖数据库
 export const dynamic = "force-dynamic";
@@ -12,20 +15,17 @@ export default async function HomePage({
   const { q } = await searchParams;
   const keyword = (q ?? "").trim();
   const topics = await getTopics(keyword);
+  const locale = await getLocale();
 
   return (
     <>
-      <header className="topbar">
-        <div className="topbar-inner">
-          <span className="brand">驳学者</span>
-          <span className="brand-note">每条新评论，只能反驳上一条</span>
-        </div>
-      </header>
+      <Topbar locale={locale} />
 
       <main className="shell">
         <div className="rule-banner">
-          这里没有并列的观点，只有<strong>一条链</strong>：想发言，就反驳紧邻的上一条评论。
-          规则是玩法的一部分，不接受跳层回复。
+          {msg(locale, "ruleA")}
+          <strong>{msg(locale, "ruleStrong")}</strong>
+          {msg(locale, "ruleC")}
         </div>
 
         <form action="/" method="get" className="search-bar">
@@ -33,16 +33,16 @@ export default async function HomePage({
             type="search"
             name="q"
             defaultValue={keyword}
-            placeholder="搜索话题标题或简介"
+            placeholder={msg(locale, "searchPlaceholder")}
             maxLength={50}
             className="field field-plain search-input"
           />
           <button type="submit" className="submit">
-            搜索
+            {msg(locale, "searchBtn")}
           </button>
           {keyword && (
             <Link href="/" className="search-clear">
-              清除
+              {msg(locale, "clear")}
             </Link>
           )}
         </form>
@@ -50,24 +50,24 @@ export default async function HomePage({
         <div className="list-head">
           <div>
             <h1 className="page-title">
-              {keyword ? `搜索「${keyword}」` : "进行中的话题"}
+              {keyword
+                ? msg(locale, "searchTitle", { q: keyword })
+                : msg(locale, "homeTitle")}
             </h1>
             <p className="page-sub">
               {keyword
-                ? `找到 ${topics.length} 个匹配话题。`
-                : "选一个话题，从链尾接上你的反驳。"}
+                ? msg(locale, "searchSub", { n: topics.length })
+                : msg(locale, "homeSubtitle")}
             </p>
           </div>
           <Link href="/topics/new" className="new-topic-link">
-            ＋ 发起新话题
+            {msg(locale, "newTopic")}
           </Link>
         </div>
 
         {topics.length === 0 ? (
           <p className="empty-note">
-            {keyword
-              ? "没有匹配的话题，换个关键词试试。"
-              : "还没有话题，来发起第一个。"}
+            {keyword ? msg(locale, "emptySearch") : msg(locale, "emptyNone")}
           </p>
         ) : (
           <div className="topic-list">
@@ -80,11 +80,13 @@ export default async function HomePage({
                 <h2 className="topic-card-title">{topic.title}</h2>
                 <p className="topic-card-summary">{topic.summary}</p>
                 <div className="topic-meta">
-                  <span>{commentCount} 条评论</span>
+                  <span>{msg(locale, "comments", { n: commentCount })}</span>
                   <span>
-                    最后活动 {lastActivity ?? topic.createdAt}
+                    {msg(locale, "lastActivity", {
+                      d: lastActivity ?? topic.createdAt,
+                    })}
                   </span>
-                  <span>起始于 {topic.createdAt}</span>
+                  <span>{msg(locale, "startedAt", { d: topic.createdAt })}</span>
                 </div>
               </Link>
             ))}

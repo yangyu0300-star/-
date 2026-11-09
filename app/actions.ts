@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
-import { REPORT_REASONS } from "@/lib/types";
+import { OPENING_PHRASE, REPORT_REASONS } from "@/lib/types";
+import { translateToEnglish } from "@/lib/translate";
 import type { RefuteType, VoteValue } from "@/lib/types";
 
 export interface SubmitInput {
@@ -289,4 +290,66 @@ export async function submitVote(input: {
     voteUp: (data?.vote_up as number | null) ?? 0,
     voteDown: (data?.vote_down as number | null) ?? 0,
   };
+}
+
+export type TranslateResult = { ok: false; error: string } | { ok: true; text: string };
+
+export async function translateContent(input: {
+  entityType: "topic" | "comment";
+  entityId: string;
+}): Promise<TranslateResult> {
+  if (!["topic", "comment"].includes(input.entityType) || !input.entityId) {
+    return { ok: false, error: "翻译对象无效。" };
+  }
+
+  const lang = "en";
+
+  // 命中缓存直接返回，避免重复调用翻译接口
+  const { data: cached } = await supabase
+    .from("translations")
+    .select("content")
+    .eq("entity_type", input.entityType)
+    .eq("entity_id", input.entityId)
+    .eq("lang", lang)
+    .maybeSingle();
+  if (cached?.content) {
+    return { ok: true, text: cached.content as string };
+  }
+
+  let source = "";
+  if (input.entityType === "topic") {
+    const { data, error } = await supabase
+      .from("topics")
+      .select("title, body")
+      .eq("id", input.entityId)
+      .maybeSingle();
+    if (error || !data) return { ok: false, error: "读取话题失败。" };
+    source = `${data.title}\n\n${data.body}`;
+  } else {
+    const { data, error } = await supabase
+      .from("comments")
+      .select("refute_type, reason")
+      .eq("id", input.entityId)
+      .maybeSingle();
+    if (error || !data) return { ok: false, error: "读取评论失败。" };
+    const type = data.refute_type as RefuteType;
+    source = `${OPENING_PHRASE[type] ?? ""}${data.reason}`;
+  }
+
+  try {
+    const text = await translateToEnglish(source);
+    await supabase.from("translations").upsert(
+      {
+        entity_type: input.entityType,
+        entity_id: input.entityId,
+        lang,
+        content: text,
+      },
+      { onConflict: "entity_type,entity_id,lang" }
+    );
+    return { ok: true, text };
+  } catch (err) {
+    console.error("[translate] failed:", err);
+    return { ok: false, error: "翻译失败，请稍后再试。" };
+  }
 }

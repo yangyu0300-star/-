@@ -2,7 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteTopic from "@/components/DeleteTopic";
 import TopicDetail from "@/components/TopicDetail";
+import Topbar from "@/components/Topbar";
+import TranslateButton from "@/components/TranslateButton";
 import { getCommentsByTopic, getTopic } from "@/lib/db";
+import { getLocale } from "@/lib/i18n-server";
+import { msg } from "@/lib/i18n";
 
 // 评论链随时会变，不在构建时预渲染，避免构建期依赖数据库
 export const dynamic = "force-dynamic";
@@ -17,27 +21,21 @@ export default async function TopicPage({
   if (!topic) notFound();
 
   const comments = await getCommentsByTopic(id);
+  const locale = await getLocale();
 
   return (
     <>
-      <header className="topbar">
-        <div className="topbar-inner">
-          <Link href="/" className="brand">
-            驳学者
-          </Link>
-          <span className="brand-note">每条新评论，只能反驳上一条</span>
-        </div>
-      </header>
+      <Topbar locale={locale} />
 
       <main className="shell">
         <Link href="/" className="back-link">
-          ← 返回话题列表
+          {msg(locale, "backToList")}
         </Link>
 
         <h1 className="page-title">{topic.title}</h1>
         <div className="topic-meta" style={{ marginBottom: 22 }}>
-          <span>起始于 {topic.createdAt}</span>
-          <span>{comments.length} 条评论</span>
+          <span>{msg(locale, "topicStarted", { d: topic.createdAt })}</span>
+          <span>{msg(locale, "comments", { n: comments.length })}</span>
         </div>
 
         <article className="topic-body">
@@ -50,9 +48,17 @@ export default async function TopicPage({
             ))}
         </article>
 
-        <TopicDetail topicId={topic.id} initialComments={comments} />
+        <div className="topic-translate">
+          <TranslateButton entityType="topic" entityId={topic.id} locale={locale} />
+        </div>
 
-        <DeleteTopic topicId={topic.id} />
+        <TopicDetail
+          topicId={topic.id}
+          initialComments={comments}
+          locale={locale}
+        />
+
+        <DeleteTopic topicId={topic.id} locale={locale} />
       </main>
     </>
   );
