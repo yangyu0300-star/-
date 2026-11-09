@@ -36,11 +36,21 @@ export async function generateMetadata({
       description: summary,
       siteName: "驳学者",
       locale: "zh_CN",
+      // 页面级 openGraph 会覆盖根布局，封面图要在这里重新挂上
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: "Boxuezhe — every new comment can only rebut the one above it",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: topic.title,
       description: summary,
+      images: ["/opengraph-image"],
     },
   };
 }
