@@ -1,0 +1,18 @@
+[Unit]
+Description=Boxuezhe (Next.js) on port 3000
+After=network.target
+
+[Service]
+Type=simple
+User=boxuezhe
+WorkingDirectory=/var/www/boxuezhe
+EnvironmentFile=/var/www/boxuezhe/.env.local
+Environment=NODE_ENV=production
+# 页面上的日期用本地时间方法格式化，时区必须是北京时间
+Environment=TZ=Asia/Shanghai
+ExecStart=/usr/bin/npm run start -- --port 3000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
