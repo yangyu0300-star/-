@@ -1,9 +1,32 @@
-export type Locale = "zh" | "en";
-
-export const DEFAULT_LOCALE: Locale = "zh";
 export const LOCALE_COOKIE = "rr_locale";
 
-/** 可被客户端组件直接引用的纯数据字典（不含函数，能安全序列化/打包） */
+export type Locale = "zh" | "en" | "es" | "fr" | "de" | "pt" | "ja" | "ko";
+
+export const DEFAULT_LOCALE: Locale = "zh";
+
+export const SUPPORTED_LOCALES: Locale[] = [
+  "zh",
+  "en",
+  "es",
+  "fr",
+  "de",
+  "pt",
+  "ja",
+  "ko",
+];
+
+/** 顶栏语言下拉框用的原生语言名 */
+export const LOCALE_LABEL: Record<Locale, string> = {
+  zh: "中文",
+  en: "English",
+  es: "Español",
+  fr: "Français",
+  de: "Deutsch",
+  pt: "Português",
+  ja: "日本語",
+  ko: "한국어",
+};
+
 const zh = {
   brand: "驳学者",
   tagline: "每条新评论，只能反驳上一条",
@@ -124,7 +147,7 @@ const zh = {
   reportFailed: "举报失败，请稍后再试。",
 } as const;
 
-type MsgKey = keyof typeof zh;
+export type MsgKey = keyof typeof zh;
 
 const en: Record<MsgKey, string> = {
   brand: "Boxuezhe",
@@ -198,7 +221,8 @@ const en: Record<MsgKey, string> = {
     "Write only what comes after the opening line. Explain what fails above and why.",
   quoteLabel: "Which part are you rebutting? (quote or paraphrase, required)",
   quotePlaceholder: "e.g. the line “every tightening will be seen as betrayal”",
-  footHint: "Your rebuttal joins the end of the chain and becomes the only target of the next comment.",
+  footHint:
+    "Your rebuttal joins the end of the chain and becomes the only target of the next comment.",
   replySubmit: "Add your link",
 
   errAuthorRequired: "Please enter a name.",
@@ -231,8 +255,10 @@ const en: Record<MsgKey, string> = {
     "Describe two or three positions and where the disagreement lies. Separate paragraphs with a blank line.",
   formPwdLabel:
     "Delete password (optional, {min}–{max} chars; if left empty only this browser can delete it)",
-  formPwdPlaceholder: "Set a password known only to you to delete it from any browser",
-  formFootHint: "A topic cannot be edited after publishing; you add the first comment on its page.",
+  formPwdPlaceholder:
+    "Set a password known only to you to delete it from any browser",
+  formFootHint:
+    "A topic cannot be edited after publishing; you add the first comment on its page.",
   formSubmit: "Publish topic",
   formBusy: "Publishing…",
 
@@ -250,7 +276,23 @@ const en: Record<MsgKey, string> = {
   reportFailed: "Report failed, please try again later.",
 };
 
-const DICT: Record<Locale, Record<MsgKey, string>> = { zh, en };
+import { es } from "./locales/es";
+import { fr } from "./locales/fr";
+import { de } from "./locales/de";
+import { pt } from "./locales/pt";
+import { ja } from "./locales/ja";
+import { ko } from "./locales/ko";
+
+const DICT: Record<Locale, Record<MsgKey, string>> = {
+  zh,
+  en,
+  es,
+  fr,
+  de,
+  pt,
+  ja,
+  ko,
+};
 
 /** 取文案；{n} 之类的占位符会被替换 */
 export function msg(
@@ -268,7 +310,33 @@ export function msg(
 }
 
 export function isLocale(value: string | undefined | null): value is Locale {
-  return value === "zh" || value === "en";
+  return SUPPORTED_LOCALES.includes(value as Locale);
+}
+
+/** 把 Accept-Language 头映射成我们支持的语言，找不到就回中文 */
+export function matchLocale(acceptLanguage: string | null | undefined): Locale {
+  if (!acceptLanguage) return DEFAULT_LOCALE;
+
+  const prefs = acceptLanguage
+    .split(",")
+    .map((part) => {
+      const [tag, q] = part.trim().split(";q=");
+      return {
+        tag: tag.trim().toLowerCase(),
+        q: q ? Number.parseFloat(q) : 1,
+      };
+    })
+    .filter((item) => item.tag.length > 0)
+    .sort((a, b) => b.q - a.q);
+
+  for (const { tag } of prefs) {
+    const base = tag.split("-")[0];
+    if (isLocale(base)) return base;
+    // 葡萄牙语、日语、韩语的各种区域变体都归到主语言
+    if (base === "pt" || base === "ja" || base === "ko") return base;
+  }
+
+  return DEFAULT_LOCALE;
 }
 
 /** 举报原因在数据库里存中文，展示时按当前语言映射 */

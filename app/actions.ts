@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
 import { OPENING_PHRASE, REPORT_REASONS } from "@/lib/types";
-import { translateToEnglish } from "@/lib/translate";
+import { translateTo } from "@/lib/translate";
+import { isLocale, type Locale } from "@/lib/i18n";
 import type { RefuteType, VoteValue } from "@/lib/types";
 
 export interface SubmitInput {
@@ -297,12 +298,16 @@ export type TranslateResult = { ok: false; error: string } | { ok: true; text: s
 export async function translateContent(input: {
   entityType: "topic" | "comment";
   entityId: string;
+  lang: Locale;
 }): Promise<TranslateResult> {
   if (!["topic", "comment"].includes(input.entityType) || !input.entityId) {
     return { ok: false, error: "翻译对象无效。" };
   }
+  if (!isLocale(input.lang) || input.lang === "zh") {
+    return { ok: false, error: "翻译目标语言无效。" };
+  }
 
-  const lang = "en";
+  const lang = input.lang;
 
   // 命中缓存直接返回，避免重复调用翻译接口
   const { data: cached } = await supabase
@@ -337,7 +342,7 @@ export async function translateContent(input: {
   }
 
   try {
-    const text = await translateToEnglish(source);
+    const text = await translateTo(source, lang);
     await supabase.from("translations").upsert(
       {
         entity_type: input.entityType,

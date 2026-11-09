@@ -69,21 +69,20 @@ a {
   gap: 4px;
 }
 
-.lang-btn {
+.lang-select {
   font: inherit;
   font-size: 12px;
-  padding: 2px 9px;
-  border-radius: 999px;
+  padding: 3px 8px;
+  border-radius: 8px;
   border: 1px solid var(--line);
-  background: transparent;
-  color: var(--ink-faint);
+  background: var(--surface);
+  color: var(--ink-soft);
   cursor: pointer;
 }
 
-.lang-btn[aria-pressed="true"] {
+.lang-select:focus {
+  outline: 2px solid var(--accent-soft);
   border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
 }
 
 .rule-banner {

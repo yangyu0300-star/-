@@ -1,11 +1,22 @@
 /**
- * 机器翻译（中文 → 英文），无需 API Key。
+ * 机器翻译（源语言自动识别，目标语言跟随界面语言），无需 API Key。
  * 先试 Google 的非官方接口，失败再用 MyMemory 兜底。
  * 只做 best effort：失败就抛错，由调用方决定怎么提示。
  */
 
 const TIMEOUT_MS = 8000;
 const MAX_CHARS = 2000;
+
+// 我们的语言代码 → 翻译接口用的语言代码
+const TARGET_CODE: Record<string, string> = {
+  en: "en",
+  es: "es",
+  fr: "fr",
+  de: "de",
+  pt: "pt",
+  ja: "ja",
+  ko: "ko",
+};
 
 async function fetchWithTimeout(url: string): Promise<Response> {
   const controller = new AbortController();
@@ -21,8 +32,8 @@ async function fetchWithTimeout(url: string): Promise<Response> {
   }
 }
 
-async function googleTranslate(text: string): Promise<string> {
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=en&dt=t&q=${encodeURIComponent(
+async function googleTranslate(text: string, target: string): Promise<string> {
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&q=${encodeURIComponent(
     text
   )}`;
   const res = await fetchWithTimeout(url);
@@ -40,10 +51,10 @@ async function googleTranslate(text: string): Promise<string> {
   return out;
 }
 
-async function myMemoryTranslate(text: string): Promise<string> {
+async function myMemoryTranslate(text: string, target: string): Promise<string> {
   const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
     text.slice(0, 500)
-  )}&langpair=zh-CN|en`;
+  )}&langpair=zh-CN|${target}`;
   const res = await fetchWithTimeout(url);
   if (!res.ok) throw new Error(`mymemory http ${res.status}`);
 
@@ -55,13 +66,16 @@ async function myMemoryTranslate(text: string): Promise<string> {
   return out;
 }
 
-export async function translateToEnglish(text: string): Promise<string> {
+export async function translateTo(text: string, locale: string): Promise<string> {
+  const target = TARGET_CODE[locale];
+  if (!target) throw new Error(`unsupported target locale: ${locale}`);
+
   const source = text.slice(0, MAX_CHARS);
 
   try {
-    return await googleTranslate(source);
+    return await googleTranslate(source, target);
   } catch (googleError) {
     console.warn("[translate] google failed:", googleError);
-    return await myMemoryTranslate(source);
+    return await myMemoryTranslate(source, target);
   }
 }

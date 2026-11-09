@@ -18,6 +18,9 @@ export default function TranslateButton({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 中文界面不需要把中文内容再翻成中文
+  if (locale === "zh") return null;
+
   async function toggle() {
     if (open) {
       setOpen(false);
@@ -30,7 +33,7 @@ export default function TranslateButton({
 
     setBusy(true);
     setError(null);
-    const result = await translateContent({ entityType, entityId });
+    const result = await translateContent({ entityType, entityId, lang: locale });
     setBusy(false);
 
     if (!result.ok) {

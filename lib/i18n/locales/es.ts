@@ -1,0 +1,129 @@
+import type { MsgKey } from "../index";
+
+export const es: Record<MsgKey, string> = {
+  brand: "Boxuezhe",
+  tagline: "Cada comentario nuevo solo puede refutar el anterior",
+  backToList: "← Volver a los temas",
+  cancel: "Cancelar",
+  submitFailed: "No se pudo enviar. Inténtalo de nuevo.",
+
+  ruleA: "Aquí no hay opiniones paralelas, solo ",
+  ruleStrong: "una cadena",
+  ruleC:
+    ": para hablar, debes refutar el comentario inmediatamente anterior. La regla es parte del juego; no se permiten respuestas que salten eslabones.",
+
+  searchPlaceholder: "Buscar títulos o resúmenes de temas",
+  searchBtn: "Buscar",
+  clear: "Limpiar",
+  homeTitle: "Debates en curso",
+  homeSubtitle: "Elige un tema y añade tu refutación al final de la cadena.",
+  searchTitle: "Buscar «{q}»",
+  searchSub: "Se encontraron {n} tema(s).",
+  emptySearch: "No hay temas coincidentes. Prueba otra palabra clave.",
+  emptyNone: "Aún no hay temas. Inicia el primero.",
+  newTopic: "+ Iniciar un tema",
+  comments: "{n} comentario(s)",
+  lastActivity: "Última actividad {d}",
+  startedAt: "Iniciado {d}",
+
+  topicStarted: "Iniciado {d}",
+  chainTitle: "La cadena",
+  chainMeta: "{n} eslabón(es) · cada uno refuta al anterior",
+  removedBadge: "Eliminado",
+  ring: "Eslabón {n}",
+  removedText: "Este comentario fue eliminado por infringir las normas de la comunidad",
+  voteHint:
+    "Estos botones evalúan solo el razonamiento, no si estás de acuerdo con la opinión. ¿No estás de acuerdo? Refuta en la cadena.",
+  qualityHint:
+    "Este tema ya tiene suficientes votos. Las etiquetas comparan el razonamiento dentro de este tema: evalúan el argumento, no la opinión, y nunca cambian el orden.",
+  voteUp: "El argumento se sostiene",
+  voteDown: "El argumento tiene fallas",
+  qualitySolid: "Razonamiento más completo",
+  qualityFlawed: "Falta desarrollo en el razonamiento",
+  reportToggle: "Denunciar este comentario",
+  reportedNote: "Denunciado, en espera de revisión",
+  reportTitle: "Elige un motivo",
+  reportSubmit: "Enviar denuncia",
+  reportBusy: "Enviando…",
+  reportIllegal: "Contenido ilegal",
+  reportSpam: "Spam o promoción",
+  reportAttack: "Ataque personal",
+  reportOther: "Otro",
+  translateBtn: "Traducir al español",
+  translateHide: "Ocultar traducción",
+  translating: "Traduciendo…",
+  translateFailed: "La traducción falló. Inténtalo más tarde.",
+
+  targetTail: "Tu refutación apunta al último comentario de la cadena:",
+  targetTailRemoved:
+    "Tu refutación apunta al último comentario de la cadena, pero fue eliminado ({removed}). Aun así respondes después de él; su posición se mantiene.",
+  targetFirst: "Este tema aún no tiene comentarios. Serás el eslabón 1.",
+  authorLabel: "Tu nombre",
+  authorPlaceholder: "Máximo 20 caracteres",
+  typeGroup: "Elige el tipo de refutación",
+  typeFull: "Refutación total",
+  typeFullDesc: "Toda la afirmación falla, incluida su premisa.",
+  typePartial: "Refutación parcial",
+  typePartialDesc: "Estás de acuerdo con una parte, pero un punto debe refutarse.",
+  reasonHeading: "Tu refutación (más allá de la frase inicial fija)",
+  countRange: "{n} / {max}, mínimo {min}",
+  lockedTag: "Frase inicial fija · no se puede editar",
+  reasonPlaceholder:
+    "Escribe solo lo que va después de la frase inicial. Explica qué falla arriba y por qué.",
+  quoteLabel: "¿Qué parte estás refutando? (cita o parafrasea, obligatorio)",
+  quotePlaceholder: "p. ej. la frase «cada endurecimiento se verá como traición»",
+  footHint:
+    "Tu refutación se une al final de la cadena y se convierte en el único objetivo del siguiente comentario.",
+  replySubmit: "Añadir tu eslabón",
+
+  errAuthorRequired: "Introduce un nombre.",
+  errAuthorMax: "El nombre puede tener como máximo {max} caracteres.",
+  errTypeRequired: "Primero elige «Refutación total» o «Refutación parcial».",
+  errReasonEmpty: "La refutación no puede estar vacía.",
+  errReasonMin: "La refutación necesita al menos {min} caracteres; ahora {n}.",
+  errReasonMax: "La refutación puede tener como máximo {max} caracteres; ahora {n}.",
+  errQuoteRequired: "Una refutación parcial debe indicar qué parte se refuta.",
+  errQuoteMax: "Mantén la cita dentro de {max} caracteres; ahora {n}.",
+  errTitleMin: "El título necesita al menos {min} caracteres; ahora {n}.",
+  errTitleMax: "El título puede tener como máximo {max} caracteres; ahora {n}.",
+  errSummaryMax: "El resumen puede tener como máximo {max} caracteres; ahora {n}.",
+  errBodyMin: "El cuerpo necesita al menos {min} caracteres; ahora {n}.",
+  errBodyMax: "El cuerpo puede tener como máximo {max} caracteres; ahora {n}.",
+  errPwdMin:
+    "La contraseña de borrado necesita al menos {min} caracteres; ahora {n}.",
+  errPwdMax: "La contraseña de borrado puede tener como máximo {max} caracteres.",
+  errDeletePwdMin: "La contraseña de borrado necesita al menos {min} caracteres.",
+
+  newTopicTitle: "Iniciar un tema nuevo",
+  newTopicSubtitle:
+    "Un tema no es un buzón de preguntas, sino un punto en disputa abierto a refutaciones encadenadas. Expón las posturas; no des por sentado quién tiene razón.",
+
+  formTitleLabel: "Título del tema (que invite a debatir)",
+  formTitlePlaceholder: "p. ej. ¿Es cierto que «los algoritmos nos vuelven más extremistas»?",
+  formSummaryLabel: "Resumen de una línea (opcional; toma el inicio del cuerpo)",
+  formSummaryPlaceholder: "Resume el punto en disputa en una línea",
+  formBodyLabel: "Cuerpo del tema (contexto y ambas posturas)",
+  formBodyPlaceholder:
+    "Describe dos o tres posturas y dónde está el desacuerdo. Separa los párrafos con una línea en blanco.",
+  formPwdLabel:
+    "Contraseña de borrado (opcional, {min}–{max} caracteres; si la dejas vacía solo este navegador puede borrarlo)",
+  formPwdPlaceholder:
+    "Pon una contraseña que solo tú conozcas para borrarlo desde cualquier navegador",
+  formFootHint:
+    "Un tema no se puede editar después de publicarlo; tú añades el primer comentario en su página.",
+  formSubmit: "Publicar tema",
+  formBusy: "Publicando…",
+
+  browserDelete: "Borrar este tema (este navegador)",
+  browserHint: "Este navegador creó el tema, así que puedes borrarlo directamente.",
+  deleteBusy: "Borrando…",
+  pwdLink: "Borrar con contraseña",
+  pwdHint: "Si definiste una contraseña de borrado al crear el tema, introdúcela aquí:",
+  pwdPlaceholder: "Introduce la contraseña de borrado",
+  confirmDelete: "Confirmar borrado",
+  confirmDeleteText:
+    "El tema y toda su cadena de comentarios se borrarán de forma permanente. ¿Continuar?",
+  deleteFailed: "No se pudo borrar. Inténtalo más tarde.",
+  voteFailed: "No se pudo votar. Inténtalo más tarde.",
+  reportFailed: "No se pudo denunciar. Inténtalo más tarde.",
+};

@@ -1,0 +1,128 @@
+import type { MsgKey } from "../index";
+
+export const de: Record<MsgKey, string> = {
+  brand: "Boxuezhe",
+  tagline: "Jeder neue Kommentar kann nur den darüber widerlegen",
+  backToList: "← Zurück zu den Themen",
+  cancel: "Abbrechen",
+  submitFailed: "Senden fehlgeschlagen. Bitte später erneut versuchen.",
+
+  ruleA: "Hier gibt es keine parallelen Meinungen, nur ",
+  ruleStrong: "eine Kette",
+  ruleC:
+    ": Um zu sprechen, musst du den unmittelbar darüberstehenden Kommentar widerlegen. Die Regel gehört zum Spiel; Antworten, die Glieder überspringen, sind nicht erlaubt.",
+
+  searchPlaceholder: "Thementitel oder Zusammenfassungen durchsuchen",
+  searchBtn: "Suchen",
+  clear: "Löschen",
+  homeTitle: "Laufende Debatten",
+  homeSubtitle: "Wähle ein Thema und füge deine Widerlegung am Ende der Kette an.",
+  searchTitle: "Suche „{q}“",
+  searchSub: "{n} passende Thema(en).",
+  emptySearch: "Keine passenden Themen. Versuche ein anderes Stichwort.",
+  emptyNone: "Noch keine Themen. Starte das erste.",
+  newTopic: "+ Thema starten",
+  comments: "{n} Kommentar(e)",
+  lastActivity: "Letzte Aktivität {d}",
+  startedAt: "Gestartet {d}",
+
+  topicStarted: "Gestartet {d}",
+  chainTitle: "Die Kette",
+  chainMeta: "{n} Glied(er) · jedes widerlegt das darüber",
+  removedBadge: "Entfernt",
+  ring: "Glied {n}",
+  removedText: "Dieser Kommentar wurde wegen Verstoßes gegen die Gemeinschaftsregeln entfernt",
+  voteHint:
+    "Diese beiden Schaltflächen bewerten nur die Argumentation, nicht ob du der Meinung zustimmst. Nicht einverstanden? Widerlege in der Kette.",
+  qualityHint:
+    "Dieses Thema hat genug Stimmen. Die Etiketten vergleichen die Argumentation innerhalb dieses Themas: Sie bewerten das Argument, nicht die Meinung, und ändern nie die Reihenfolge.",
+  voteUp: "Argument trägt",
+  voteDown: "Argument hat Lücken",
+  qualitySolid: "Stärkere Argumentation",
+  qualityFlawed: "Argumentation braucht Ergänzung",
+  reportToggle: "Diesen Kommentar melden",
+  reportedNote: "Gemeldet, wird geprüft",
+  reportTitle: "Grund wählen",
+  reportSubmit: "Meldung senden",
+  reportBusy: "Wird gesendet…",
+  reportIllegal: "Illegaler Inhalt",
+  reportSpam: "Spam oder Werbung",
+  reportAttack: "Persönlicher Angriff",
+  reportOther: "Sonstiges",
+  translateBtn: "Ins Deutsche übersetzen",
+  translateHide: "Übersetzung ausblenden",
+  translating: "Wird übersetzt…",
+  translateFailed: "Übersetzung fehlgeschlagen. Bitte später erneut versuchen.",
+
+  targetTail: "Deine Widerlegung richtet sich an den letzten Kommentar der Kette:",
+  targetTailRemoved:
+    "Deine Widerlegung richtet sich an den letzten Kommentar der Kette, aber er wurde entfernt ({removed}). Du antwortest trotzdem danach; seine Position bleibt erhalten.",
+  targetFirst: "Dieses Thema hat noch keine Kommentare. Du wirst Glied 1.",
+  authorLabel: "Dein Name",
+  authorPlaceholder: "Höchstens 20 Zeichen",
+  typeGroup: "Art der Widerlegung wählen",
+  typeFull: "Vollständige Widerlegung",
+  typeFullDesc: "Die ganze Behauptung hält nicht, einschließlich ihrer Prämisse.",
+  typePartial: "Teilweise Widerlegung",
+  typePartialDesc: "Du stimmst einem Teil zu, aber ein Punkt muss widerlegt werden.",
+  reasonHeading: "Deine Widerlegung (nach dem festen Einleitungssatz)",
+  countRange: "{n} / {max}, mindestens {min}",
+  lockedTag: "Fester Einleitungssatz · nicht bearbeitbar",
+  reasonPlaceholder:
+    "Schreibe nur, was nach dem Einleitungssatz kommt. Erkläre, was oben nicht trägt und warum.",
+  quoteLabel: "Welchen Teil widerlegst du? (Zitat oder Paraphrase, Pflichtfeld)",
+  quotePlaceholder: "z. B. den Satz „jede Verschärfung wird als Verrat gesehen“",
+  footHint:
+    "Deine Widerlegung hängt sich ans Ende der Kette und wird zum einzigen Ziel des nächsten Kommentars.",
+  replySubmit: "Glied anfügen",
+
+  errAuthorRequired: "Bitte einen Namen angeben.",
+  errAuthorMax: "Der Name darf höchstens {max} Zeichen haben.",
+  errTypeRequired: "Wähle zuerst „Vollständige Widerlegung“ oder „Teilweise Widerlegung“.",
+  errReasonEmpty: "Die Widerlegung darf nicht leer sein.",
+  errReasonMin: "Die Widerlegung braucht mindestens {min} Zeichen; aktuell {n}.",
+  errReasonMax: "Die Widerlegung darf höchstens {max} Zeichen haben; aktuell {n}.",
+  errQuoteRequired: "Eine teilweise Widerlegung muss den widerlegten Teil benennen.",
+  errQuoteMax: "Das Zitat darf höchstens {max} Zeichen haben; aktuell {n}.",
+  errTitleMin: "Der Titel braucht mindestens {min} Zeichen; aktuell {n}.",
+  errTitleMax: "Der Titel darf höchstens {max} Zeichen haben; aktuell {n}.",
+  errSummaryMax: "Die Zusammenfassung darf höchstens {max} Zeichen haben; aktuell {n}.",
+  errBodyMin: "Der Text braucht mindestens {min} Zeichen; aktuell {n}.",
+  errBodyMax: "Der Text darf höchstens {max} Zeichen haben; aktuell {n}.",
+  errPwdMin: "Das Löschpasswort braucht mindestens {min} Zeichen; aktuell {n}.",
+  errPwdMax: "Das Löschpasswort darf höchstens {max} Zeichen haben.",
+  errDeletePwdMin: "Das Löschpasswort braucht mindestens {min} Zeichen.",
+
+  newTopicTitle: "Ein neues Thema starten",
+  newTopicSubtitle:
+    "Ein Thema ist keine Fragebox, sondern ein strittiger Punkt, der durch Widerlegungen in der Kette bearbeitet wird. Lege die Positionen dar; unterstelle nicht, wer recht hat.",
+
+  formTitleLabel: "Thementitel (soll zum Widerspruch reizen)",
+  formTitlePlaceholder: "z. B. Hält „Algorithmen machen uns extremer“ stand?",
+  formSummaryLabel: "Einzeilige Zusammenfassung (optional; sonst Textanfang)",
+  formSummaryPlaceholder: "Den Streitpunkt in einer Zeile benennen",
+  formBodyLabel: "Thema-Text (Hintergrund und beide Seiten)",
+  formBodyPlaceholder:
+    "Beschreibe zwei oder drei Positionen und worin der Streit liegt. Trenne Absätze mit einer Leerzeile.",
+  formPwdLabel:
+    "Löschpasswort (optional, {min}–{max} Zeichen; leer = nur dieser Browser kann löschen)",
+  formPwdPlaceholder:
+    "Setze ein Passwort, das nur du kennst, um von jedem Browser zu löschen",
+  formFootHint:
+    "Ein Thema kann nach dem Veröffentlichen nicht geändert werden; den ersten Kommentar schreibst du auf der Themenseite.",
+  formSubmit: "Thema veröffentlichen",
+  formBusy: "Wird veröffentlicht…",
+
+  browserDelete: "Dieses Thema löschen (dieser Browser)",
+  browserHint: "Dieser Browser hat das Thema erstellt, du kannst es direkt löschen.",
+  deleteBusy: "Wird gelöscht…",
+  pwdLink: "Mit Passwort löschen",
+  pwdHint: "Wenn du beim Erstellen ein Löschpasswort gesetzt hast, gib es hier ein:",
+  pwdPlaceholder: "Löschpasswort eingeben",
+  confirmDelete: "Löschen bestätigen",
+  confirmDeleteText:
+    "Das Thema und die gesamte Kommentarkette werden endgültig gelöscht. Fortfahren?",
+  deleteFailed: "Löschen fehlgeschlagen. Bitte später erneut versuchen.",
+  voteFailed: "Abstimmen fehlgeschlagen. Bitte später erneut versuchen.",
+  reportFailed: "Melden fehlgeschlagen. Bitte später erneut versuchen.",
+};

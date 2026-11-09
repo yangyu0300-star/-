@@ -1,0 +1,129 @@
+import type { MsgKey } from "../index";
+
+export const fr: Record<MsgKey, string> = {
+  brand: "Boxuezhe",
+  tagline: "Chaque nouveau commentaire ne peut réfuter que le précédent",
+  backToList: "← Retour aux sujets",
+  cancel: "Annuler",
+  submitFailed: "Échec de l'envoi. Réessayez plus tard.",
+
+  ruleA: "Ici, pas d'opinions parallèles, seulement ",
+  ruleStrong: "une chaîne",
+  ruleC:
+    " : pour parler, vous devez réfuter le commentaire juste au-dessus. La règle fait partie du jeu ; les réponses qui sautent un maillon sont refusées.",
+
+  searchPlaceholder: "Rechercher des titres ou résumés de sujets",
+  searchBtn: "Rechercher",
+  clear: "Effacer",
+  homeTitle: "Débats en cours",
+  homeSubtitle: "Choisissez un sujet et ajoutez votre réfutation au bout de la chaîne.",
+  searchTitle: "Recherche « {q} »",
+  searchSub: "{n} sujet(s) correspondant(s).",
+  emptySearch: "Aucun sujet correspondant. Essayez un autre mot-clé.",
+  emptyNone: "Aucun sujet pour l'instant. Lancez le premier.",
+  newTopic: "+ Lancer un sujet",
+  comments: "{n} commentaire(s)",
+  lastActivity: "Dernière activité {d}",
+  startedAt: "Commencé le {d}",
+
+  topicStarted: "Commencé le {d}",
+  chainTitle: "La chaîne",
+  chainMeta: "{n} maillon(s) · chacun réfute le précédent",
+  removedBadge: "Supprimé",
+  ring: "Maillon {n}",
+  removedText: "Ce commentaire a été supprimé pour violation des règles de la communauté",
+  voteHint:
+    "Ces boutons n'évaluent que le raisonnement, pas votre accord avec l'opinion. Pas d'accord ? Réfutez dans la chaîne.",
+  qualityHint:
+    "Ce sujet a assez de votes. Les étiquettes comparent le raisonnement au sein de ce sujet : elles notent l'argument, pas l'opinion, et ne changent jamais l'ordre.",
+  voteUp: "L'argument tient",
+  voteDown: "L'argument a des failles",
+  qualitySolid: "Raisonnement plus complet",
+  qualityFlawed: "Raisonnement à compléter",
+  reportToggle: "Signaler ce commentaire",
+  reportedNote: "Signalé, en attente de traitement",
+  reportTitle: "Choisissez un motif",
+  reportSubmit: "Envoyer le signalement",
+  reportBusy: "Envoi…",
+  reportIllegal: "Contenu illégal",
+  reportSpam: "Spam ou promotion",
+  reportAttack: "Attaque personnelle",
+  reportOther: "Autre",
+  translateBtn: "Traduire en français",
+  translateHide: "Masquer la traduction",
+  translating: "Traduction…",
+  translateFailed: "Échec de la traduction. Réessayez plus tard.",
+
+  targetTail: "Votre réfutation vise le dernier commentaire de la chaîne :",
+  targetTailRemoved:
+    "Votre réfutation vise le dernier commentaire de la chaîne, mais il a été supprimé ({removed}). Vous répondez tout de même après lui ; sa position est conservée.",
+  targetFirst: "Ce sujet n'a pas encore de commentaire. Vous serez le maillon 1.",
+  authorLabel: "Votre nom",
+  authorPlaceholder: "20 caractères maximum",
+  typeGroup: "Choisissez le type de réfutation",
+  typeFull: "Réfutation totale",
+  typeFullDesc: "Toute l'affirmation est fausse, y compris sa prémisse.",
+  typePartial: "Réfutation partielle",
+  typePartialDesc: "Vous êtes d'accord sur une partie, mais un point doit être réfuté.",
+  reasonHeading: "Votre réfutation (au-delà de la phrase d'ouverture fixe)",
+  countRange: "{n} / {max}, minimum {min}",
+  lockedTag: "Phrase d'ouverture fixe · non modifiable",
+  reasonPlaceholder:
+    "N'écrivez que ce qui suit la phrase d'ouverture. Expliquez ce qui échoue au-dessus et pourquoi.",
+  quoteLabel: "Quelle partie réfutez-vous ? (citation ou reformulation, obligatoire)",
+  quotePlaceholder: "p. ex. la phrase « chaque durcissement sera vu comme une trahison »",
+  footHint:
+    "Votre réfutation rejoint la fin de la chaîne et devient la seule cible du commentaire suivant.",
+  replySubmit: "Ajouter votre maillon",
+
+  errAuthorRequired: "Indiquez un nom.",
+  errAuthorMax: "Le nom ne peut pas dépasser {max} caractères.",
+  errTypeRequired: "Choisissez d'abord « Réfutation totale » ou « Réfutation partielle ».",
+  errReasonEmpty: "La réfutation ne peut pas être vide.",
+  errReasonMin: "La réfutation doit faire au moins {min} caractères ; actuellement {n}.",
+  errReasonMax: "La réfutation ne peut pas dépasser {max} caractères ; actuellement {n}.",
+  errQuoteRequired: "Une réfutation partielle doit préciser la partie réfutée.",
+  errQuoteMax: "La citation doit rester sous {max} caractères ; actuellement {n}.",
+  errTitleMin: "Le titre doit faire au moins {min} caractères ; actuellement {n}.",
+  errTitleMax: "Le titre ne peut pas dépasser {max} caractères ; actuellement {n}.",
+  errSummaryMax: "Le résumé ne peut pas dépasser {max} caractères ; actuellement {n}.",
+  errBodyMin: "Le corps doit faire au moins {min} caractères ; actuellement {n}.",
+  errBodyMax: "Le corps ne peut pas dépasser {max} caractères ; actuellement {n}.",
+  errPwdMin:
+    "Le mot de passe de suppression doit faire au moins {min} caractères ; actuellement {n}.",
+  errPwdMax: "Le mot de passe de suppression ne peut pas dépasser {max} caractères.",
+  errDeletePwdMin: "Le mot de passe de suppression doit faire au moins {min} caractères.",
+
+  newTopicTitle: "Lancer un nouveau sujet",
+  newTopicSubtitle:
+    "Un sujet n'est pas une boîte à questions, mais un point contesté ouvert à des réfutations en chaîne. Exposez les positions ; ne présumez pas qui a raison.",
+
+  formTitleLabel: "Titre du sujet (rendez-le contestable)",
+  formTitlePlaceholder: "p. ex. « Les algorithmes nous rendent plus extrêmes » tient-il debout ?",
+  formSummaryLabel: "Résumé en une ligne (facultatif ; reprend le début du corps)",
+  formSummaryPlaceholder: "Résumez le point contesté en une ligne",
+  formBodyLabel: "Corps du sujet (contexte et deux camps)",
+  formBodyPlaceholder:
+    "Décrivez deux ou trois positions et où se situe le désaccord. Séparez les paragraphes par une ligne vide.",
+  formPwdLabel:
+    "Mot de passe de suppression (facultatif, {min}–{max} caractères ; vide, seul ce navigateur peut supprimer)",
+  formPwdPlaceholder:
+    "Choisissez un mot de passe connu de vous seul pour supprimer depuis n'importe quel navigateur",
+  formFootHint:
+    "Un sujet ne peut plus être modifié après publication ; vous ajoutez le premier commentaire sur sa page.",
+  formSubmit: "Publier le sujet",
+  formBusy: "Publication…",
+
+  browserDelete: "Supprimer ce sujet (ce navigateur)",
+  browserHint: "Ce navigateur a créé le sujet, vous pouvez le supprimer directement.",
+  deleteBusy: "Suppression…",
+  pwdLink: "Supprimer avec un mot de passe",
+  pwdHint: "Si vous avez défini un mot de passe à la création, saisissez-le ici :",
+  pwdPlaceholder: "Saisir le mot de passe de suppression",
+  confirmDelete: "Confirmer la suppression",
+  confirmDeleteText:
+    "Le sujet et toute sa chaîne de commentaires seront supprimés définitivement. Continuer ?",
+  deleteFailed: "Échec de la suppression. Réessayez plus tard.",
+  voteFailed: "Échec du vote. Réessayez plus tard.",
+  reportFailed: "Échec du signalement. Réessayez plus tard.",
+};

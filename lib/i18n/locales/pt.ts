@@ -1,0 +1,128 @@
+import type { MsgKey } from "../index";
+
+export const pt: Record<MsgKey, string> = {
+  brand: "Boxuezhe",
+  tagline: "Cada novo comentário só pode refutar o anterior",
+  backToList: "← Voltar aos temas",
+  cancel: "Cancelar",
+  submitFailed: "Falha ao enviar. Tente novamente mais tarde.",
+
+  ruleA: "Aqui não há opiniões paralelas, apenas ",
+  ruleStrong: "uma corrente",
+  ruleC:
+    ": para falar, você precisa refutar o comentário imediatamente acima. A regra faz parte do jogo; respostas que pulam elos não são permitidas.",
+
+  searchPlaceholder: "Pesquisar títulos ou resumos de temas",
+  searchBtn: "Pesquisar",
+  clear: "Limpar",
+  homeTitle: "Debates em andamento",
+  homeSubtitle: "Escolha um tema e adicione sua refutação no fim da corrente.",
+  searchTitle: "Pesquisar “{q}”",
+  searchSub: "{n} tema(s) encontrado(s).",
+  emptySearch: "Nenhum tema correspondente. Tente outra palavra-chave.",
+  emptyNone: "Ainda não há temas. Comece o primeiro.",
+  newTopic: "+ Criar um tema",
+  comments: "{n} comentário(s)",
+  lastActivity: "Última atividade {d}",
+  startedAt: "Iniciado em {d}",
+
+  topicStarted: "Iniciado em {d}",
+  chainTitle: "A corrente",
+  chainMeta: "{n} elo(s) · cada um refuta o anterior",
+  removedBadge: "Removido",
+  ring: "Elo {n}",
+  removedText: "Este comentário foi removido por violar as regras da comunidade",
+  voteHint:
+    "Estes botões avaliam apenas o raciocínio, não se você concorda com a opinião. Discordou? Refute na corrente.",
+  qualityHint:
+    "Este tema já tem votos suficientes. As etiquetas comparam o raciocínio dentro deste tema: avaliam o argumento, não a opinião, e nunca mudam a ordem.",
+  voteUp: "O argumento se sustenta",
+  voteDown: "O argumento tem falhas",
+  qualitySolid: "Raciocínio mais completo",
+  qualityFlawed: "Raciocínio precisa de complemento",
+  reportToggle: "Denunciar este comentário",
+  reportedNote: "Denunciado, aguardando análise",
+  reportTitle: "Escolha um motivo",
+  reportSubmit: "Enviar denúncia",
+  reportBusy: "Enviando…",
+  reportIllegal: "Conteúdo ilegal",
+  reportSpam: "Spam ou promoção",
+  reportAttack: "Ataque pessoal",
+  reportOther: "Outro",
+  translateBtn: "Traduzir para português",
+  translateHide: "Ocultar tradução",
+  translating: "Traduzindo…",
+  translateFailed: "A tradução falhou. Tente novamente mais tarde.",
+
+  targetTail: "Sua refutação mira o último comentário da corrente:",
+  targetTailRemoved:
+    "Sua refutação mira o último comentário da corrente, mas ele foi removido ({removed}). Você responde mesmo assim depois dele; a posição é preservada.",
+  targetFirst: "Este tema ainda não tem comentários. Você será o elo 1.",
+  authorLabel: "Seu nome",
+  authorPlaceholder: "Até 20 caracteres",
+  typeGroup: "Escolha o tipo de refutação",
+  typeFull: "Refutação total",
+  typeFullDesc: "Toda a afirmação falha, incluindo sua premissa.",
+  typePartial: "Refutação parcial",
+  typePartialDesc: "Você concorda com uma parte, mas um ponto precisa ser refutado.",
+  reasonHeading: "Sua refutação (além da frase de abertura fixa)",
+  countRange: "{n} / {max}, mínimo {min}",
+  lockedTag: "Frase de abertura fixa · não editável",
+  reasonPlaceholder:
+    "Escreva apenas o que vem depois da frase de abertura. Explique o que falha acima e por quê.",
+  quoteLabel: "Que parte você está refutando? (citação ou paráfrase, obrigatório)",
+  quotePlaceholder: "ex.: a frase “todo endurecimento será visto como traição”",
+  footHint:
+    "Sua refutação entra no fim da corrente e vira o único alvo do próximo comentário.",
+  replySubmit: "Adicionar seu elo",
+
+  errAuthorRequired: "Informe um nome.",
+  errAuthorMax: "O nome pode ter no máximo {max} caracteres.",
+  errTypeRequired: "Escolha primeiro “Refutação total” ou “Refutação parcial”.",
+  errReasonEmpty: "A refutação não pode ficar vazia.",
+  errReasonMin: "A refutação precisa de pelo menos {min} caracteres; agora {n}.",
+  errReasonMax: "A refutação pode ter no máximo {max} caracteres; agora {n}.",
+  errQuoteRequired: "Uma refutação parcial deve indicar a parte refutada.",
+  errQuoteMax: "Mantenha a citação em até {max} caracteres; agora {n}.",
+  errTitleMin: "O título precisa de pelo menos {min} caracteres; agora {n}.",
+  errTitleMax: "O título pode ter no máximo {max} caracteres; agora {n}.",
+  errSummaryMax: "O resumo pode ter no máximo {max} caracteres; agora {n}.",
+  errBodyMin: "O corpo precisa de pelo menos {min} caracteres; agora {n}.",
+  errBodyMax: "O corpo pode ter no máximo {max} caracteres; agora {n}.",
+  errPwdMin: "A senha de exclusão precisa de pelo menos {min} caracteres; agora {n}.",
+  errPwdMax: "A senha de exclusão pode ter no máximo {max} caracteres.",
+  errDeletePwdMin: "A senha de exclusão precisa de pelo menos {min} caracteres.",
+
+  newTopicTitle: "Criar um novo tema",
+  newTopicSubtitle:
+    "Um tema não é uma caixa de perguntas, mas um ponto em disputa aberto a refutações em corrente. Exponha as posições; não presuma quem está certo.",
+
+  formTitleLabel: "Título do tema (torne-o debatível)",
+  formTitlePlaceholder: "ex.: “os algoritmos nos tornam mais extremos” se sustenta?",
+  formSummaryLabel: "Resumo em uma linha (opcional; usa o início do corpo)",
+  formSummaryPlaceholder: "Resuma o ponto em disputa em uma linha",
+  formBodyLabel: "Corpo do tema (contexto e os dois lados)",
+  formBodyPlaceholder:
+    "Descreva duas ou três posições e onde está o desacordo. Separe parágrafos com uma linha em branco.",
+  formPwdLabel:
+    "Senha de exclusão (opcional, {min}–{max} caracteres; vazia = só este navegador pode excluir)",
+  formPwdPlaceholder:
+    "Defina uma senha só sua para excluir de qualquer navegador",
+  formFootHint:
+    "Um tema não pode ser editado após a publicação; você adiciona o primeiro comentário na página dele.",
+  formSubmit: "Publicar tema",
+  formBusy: "Publicando…",
+
+  browserDelete: "Excluir este tema (este navegador)",
+  browserHint: "Este navegador criou o tema, você pode excluí-lo diretamente.",
+  deleteBusy: "Excluindo…",
+  pwdLink: "Excluir com senha",
+  pwdHint: "Se você definiu uma senha ao criar o tema, digite-a aqui:",
+  pwdPlaceholder: "Digite a senha de exclusão",
+  confirmDelete: "Confirmar exclusão",
+  confirmDeleteText:
+    "O tema e toda a corrente de comentários serão excluídos permanentemente. Continuar?",
+  deleteFailed: "Falha ao excluir. Tente novamente mais tarde.",
+  voteFailed: "Falha ao votar. Tente novamente mais tarde.",
+  reportFailed: "Falha ao denunciar. Tente novamente mais tarde.",
+};
