@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteTopic from "@/components/DeleteTopic";
@@ -10,6 +11,39 @@ import { msg } from "@/lib/i18n";
 
 // 评论链随时会变，不在构建时预渲染，避免构建期依赖数据库
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const topic = await getTopic(id);
+  if (!topic) return { title: "话题不存在" };
+
+  const summary =
+    topic.summary?.trim() ||
+    topic.body.replace(/\s+/g, " ").trim().slice(0, 140);
+
+  return {
+    title: topic.title,
+    description: summary,
+    alternates: { canonical: `/topics/${id}` },
+    openGraph: {
+      type: "article",
+      url: `/topics/${id}`,
+      title: topic.title,
+      description: summary,
+      siteName: "驳学者",
+      locale: "zh_CN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: topic.title,
+      description: summary,
+    },
+  };
+}
 
 export default async function TopicPage({
   params,

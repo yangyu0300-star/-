@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Topbar from "@/components/Topbar";
 import { getTopics } from "@/lib/db";
@@ -6,6 +7,26 @@ import { msg } from "@/lib/i18n";
 
 // 话题数据随时会变，不在构建时预渲染，避免构建期依赖数据库
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const { q } = await searchParams;
+  const keyword = (q ?? "").trim();
+
+  // 搜索结果页只是同内容的另一种排列，不应被收录
+  if (keyword) {
+    return {
+      title: `搜索「${keyword}」`,
+      alternates: { canonical: "/" },
+      robots: { index: false, follow: true },
+    };
+  }
+
+  return { alternates: { canonical: "/" } };
+}
 
 export default async function HomePage({
   searchParams,
