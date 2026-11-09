@@ -21,6 +21,7 @@ export default function ReplyForm({
   tail,
   onSubmit,
   locale,
+  blocked,
 }: {
   tail: Comment | null;
   onSubmit: (payload: {
@@ -30,6 +31,7 @@ export default function ReplyForm({
     targetQuote?: string;
   }) => void;
   locale: Locale;
+  blocked: boolean;
 }) {
   const [authorName, setAuthorName] = useState("");
   const [refuteType, setRefuteType] = useState<RefuteType | null>(null);
@@ -74,6 +76,7 @@ export default function ReplyForm({
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
+    if (blocked) return;
     const next = validate();
     setErrors(next);
     if (!refuteType || Object.keys(next).length > 0) return;
@@ -214,10 +217,12 @@ export default function ReplyForm({
 
       <div className="reply-foot">
         <span className="hint">{msg(locale, "footHint")}</span>
-        <button type="submit" className="submit">
+        <button type="submit" className="submit" disabled={blocked}>
           {msg(locale, "replySubmit")}
         </button>
       </div>
+
+      {blocked && <p className="field-error">{msg(locale, "chainBlocked")}</p>}
     </form>
   );
 }

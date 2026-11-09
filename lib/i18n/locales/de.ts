@@ -55,6 +55,7 @@ export const de: Record<MsgKey, string> = {
   translateFailed: "Übersetzung fehlgeschlagen. Bitte später erneut versuchen.",
   openingFull: "Ich stimme der Schlussfolgerung des vorherigen Kommentars nicht zu: ",
   openingPartial: "Einem Teil stimme ich zu, dem Folgenden aber nicht: ",
+  chainBlocked: "Das letzte Glied stammt von dir. Warte, bis jemand es widerlegt hat, bevor du erneut antwortest.",
 
   targetTail: "Deine Widerlegung richtet sich an den letzten Kommentar der Kette:",
   targetTailRemoved:

@@ -43,7 +43,9 @@ function adaptFromActionRow(row: {
 
 const VOTER_KEY_STORAGE = "rr_voter_key";
 const MY_VOTES_STORAGE = "rr_my_votes";
+const MY_COMMENTS_STORAGE = "rr_my_comments";
 
+// 浏览器身份：投票和评论作者共用一个，代表「这个浏览器」
 function getVoterKey(): string {
   let key = localStorage.getItem(VOTER_KEY_STORAGE);
   if (!key) {
@@ -73,6 +75,7 @@ export default function TopicDetail({
   const [reportBusy, setReportBusy] = useState(false);
   const [reported, setReported] = useState<string[]>([]);
   const [myVotes, setMyVotes] = useState<Record<string, VoteValue>>({});
+  const [myComments, setMyComments] = useState<string[]>([]);
   const [voting, setVoting] = useState<string | null>(null);
   const [voteError, setVoteError] = useState<string | null>(null);
 
@@ -82,6 +85,12 @@ export default function TopicDetail({
       if (raw) setMyVotes(JSON.parse(raw) as Record<string, VoteValue>);
     } catch {
       // 本地记录损坏就当作没投过，不影响使用
+    }
+    try {
+      const raw = localStorage.getItem(MY_COMMENTS_STORAGE);
+      if (raw) setMyComments(JSON.parse(raw) as string[]);
+    } catch {
+      // 同上
     }
   }, []);
 
@@ -121,13 +130,28 @@ export default function TopicDetail({
     targetQuote?: string;
   }) {
     setGlobalError(null);
-    const result = await submitComment({ topicId, ...payload });
+    const result = await submitComment({
+      topicId,
+      authorKey: getVoterKey(),
+      ...payload,
+    });
     if (!result.ok || !result.comment) {
-      setGlobalError(result.ok ? msg(locale, "submitFailed") : (result.error ?? "unknown"));
+      setGlobalError(
+        !result.ok && result.error === "CHAIN_BLOCKED"
+          ? msg(locale, "chainBlocked")
+          : result.ok
+            ? msg(locale, "submitFailed")
+            : (result.error ?? "unknown")
+      );
       return;
     }
     const comment = adaptFromActionRow(result.comment);
     setComments((prev) => [...prev, comment]);
+
+    // 记下自己发的评论，用于「链尾是我时禁止连发」的前端提示
+    const nextMine = [...myComments, comment.id];
+    setMyComments(nextMine);
+    localStorage.setItem(MY_COMMENTS_STORAGE, JSON.stringify(nextMine));
   }
 
   async function handleReport(commentId: string) {
@@ -303,7 +327,12 @@ export default function TopicDetail({
         </p>
       )}
 
-      <ReplyForm tail={tail} onSubmit={handleReply} locale={locale} />
+      <ReplyForm
+        tail={tail}
+        onSubmit={handleReply}
+        locale={locale}
+        blocked={tail !== null && myComments.includes(tail.id)}
+      />
     </>
   );
 }

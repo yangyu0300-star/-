@@ -10,6 +10,7 @@ import type { RefuteType, VoteValue } from "@/lib/types";
 export interface SubmitInput {
   topicId: string;
   authorName: string;
+  authorKey: string;
   refuteType: RefuteType;
   reason: string;
   targetQuote?: string;
@@ -158,11 +159,15 @@ export async function deleteTopic(input: {
 export async function submitComment(input: SubmitInput) {
   // 服务端二次校验（双保险，数据库层还有 check 约束）
   const author = input.authorName.trim();
+  const authorKey = input.authorKey.trim();
   const reason = input.reason.trim();
   const quote = input.targetQuote?.trim();
 
   if (author.length === 0 || author.length > 20) {
     return { ok: false, error: "昵称需 1–20 字。" };
+  }
+  if (authorKey.length < 8 || authorKey.length > 64) {
+    return { ok: false, error: "浏览器标识无效。" };
   }
   if (!["full", "partial"].includes(input.refuteType)) {
     return { ok: false, error: "反驳类型无效。" };
@@ -179,13 +184,18 @@ export async function submitComment(input: SubmitInput) {
   // 找到当前话题的链尾评论（按 created_at 升序最后一条）
   const { data: tail, error: tailErr } = await supabase
     .from("comments")
-    .select("id")
+    .select("id, author_key")
     .eq("topic_id", input.topicId)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   if (tailErr) return { ok: false, error: `读取话题失败：${tailErr.message}` };
+
+  // 同一浏览器不能连续接龙：链尾是自己发的，就要等别人先接上
+  if (tail?.author_key && tail.author_key === authorKey) {
+    return { ok: false, error: "CHAIN_BLOCKED" };
+  }
 
   const { data, error } = await supabase
     .from("comments")
@@ -196,6 +206,7 @@ export async function submitComment(input: SubmitInput) {
       target_quote: input.refuteType === "partial" ? quote : null,
       reason,
       author_name: author,
+      author_key: authorKey,
     })
     .select(
       "id, topic_id, parent_id, refute_type, target_quote, reason, author_name, created_at, status, vote_up, vote_down"

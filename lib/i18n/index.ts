@@ -80,6 +80,7 @@ const zh = {
   translateFailed: "翻译失败，请稍后再试。",
   openingFull: "我不同意上一条评论的结论：",
   openingPartial: "我认同其中一部分，但我不同意以下内容：",
+  chainBlocked: "链尾这条是你发的。等别人接上之后，你才能继续在这条链上反驳。",
 
   targetTail: "你的反驳对象是链尾唯一一条评论：",
   targetTailRemoved:
@@ -206,6 +207,7 @@ const en: Record<MsgKey, string> = {
   translateFailed: "Translation failed, please try again later.",
   openingFull: "I disagree with the conclusion of the comment above: ",
   openingPartial: "I agree with part of it, but I disagree with the following: ",
+  chainBlocked: "The last link is yours. Wait until someone rebuts it before adding another.",
 
   targetTail: "Your rebuttal targets the only last comment in the chain:",
   targetTailRemoved:

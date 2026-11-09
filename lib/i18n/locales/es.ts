@@ -55,6 +55,7 @@ export const es: Record<MsgKey, string> = {
   translateFailed: "La traducción falló. Inténtalo más tarde.",
   openingFull: "No estoy de acuerdo con la conclusión del comentario anterior: ",
   openingPartial: "Estoy de acuerdo con una parte, pero no con lo siguiente: ",
+  chainBlocked: "El último eslabón es tuyo. Espera a que alguien lo refute antes de añadir otro.",
 
   targetTail: "Tu refutación apunta al último comentario de la cadena:",
   targetTailRemoved:
