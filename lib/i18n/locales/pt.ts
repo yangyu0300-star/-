@@ -128,4 +128,14 @@ export const pt: Record<MsgKey, string> = {
   deleteFailed: "Falha ao excluir. Tente novamente mais tarde.",
   voteFailed: "Falha ao votar. Tente novamente mais tarde.",
   reportFailed: "Falha ao denunciar. Tente novamente mais tarde.",
+
+  legalTitle: "Diretrizes e declarações legais",
+  legalUpdatedAt: "Última atualização: {d}",
+  legalCommunity: "Diretrizes da comunidade",
+  legalPrivacy: "Política de privacidade",
+  legalTerms: "Termos de serviço",
+  legalFallback: "Este documento legal está atualmente disponível apenas em chinês e inglês. Visitantes não-chineses e não-ingleses verão a versão em inglês.",
+  legalLink: "Diretrizes da comunidade",
+  privacyLink: "Política de privacidade",
+  termsLink: "Termos de serviço",
 };

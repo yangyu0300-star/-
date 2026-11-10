@@ -129,4 +129,14 @@ export const fr: Record<MsgKey, string> = {
   deleteFailed: "Échec de la suppression. Réessayez plus tard.",
   voteFailed: "Échec du vote. Réessayez plus tard.",
   reportFailed: "Échec du signalement. Réessayez plus tard.",
+
+  legalTitle: "Règlement et déclarations légales",
+  legalUpdatedAt: "Dernière mise à jour : {d}",
+  legalCommunity: "Règlement de la communauté",
+  legalPrivacy: "Politique de confidentialité",
+  legalTerms: "Conditions d'utilisation",
+  legalFallback: "Ce document juridique n'est disponible qu'en chinois et en anglais. Les visiteurs ne parlant ni chinois ni anglais verront la version anglaise.",
+  legalLink: "Règlement de la communauté",
+  privacyLink: "Politique de confidentialité",
+  termsLink: "Conditions d'utilisation",
 };

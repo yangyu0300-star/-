@@ -131,4 +131,14 @@ export const ja: Record<MsgKey, string> = {
   deleteFailed: "削除に失敗しました。しばらくしてからお試しください。",
   voteFailed: "投票に失敗しました。しばらくしてからお試しください。",
   reportFailed: "報告に失敗しました。しばらくしてからお試しください。",
+
+  legalTitle: "コミュニティ規約と法務声明",
+  legalUpdatedAt: "最終更新：{d}",
+  legalCommunity: "コミュニティ規約",
+  legalPrivacy: "プライバシーポリシー",
+  legalTerms: "利用規約",
+  legalFallback: "この法務文書は現在中国語と英語のみ対応しています。中国語・英語以外の訪問者には英語版が表示されます。",
+  legalLink: "コミュニティ規約",
+  privacyLink: "プライバシーポリシー",
+  termsLink: "利用規約",
 };

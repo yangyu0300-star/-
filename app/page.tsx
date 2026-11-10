@@ -113,6 +113,12 @@ export default async function HomePage({
             ))}
           </div>
         )}
+
+        <nav className="legal-links" aria-label="Legal">
+          <Link href="/legal?doc=community">{msg(locale, "legalLink")}</Link>
+          <Link href="/legal?doc=privacy">{msg(locale, "privacyLink")}</Link>
+          <Link href="/legal?doc=terms">{msg(locale, "termsLink")}</Link>
+        </nav>
       </main>
     </>
   );

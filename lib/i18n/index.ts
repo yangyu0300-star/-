@@ -148,6 +148,16 @@ const zh = {
   deleteFailed: "删除失败，请稍后再试。",
   voteFailed: "投票失败，请稍后再试。",
   reportFailed: "举报失败，请稍后再试。",
+
+  legalTitle: "社区规范与法律声明",
+  legalUpdatedAt: "上次更新：{d}",
+  legalCommunity: "社区规范",
+  legalPrivacy: "隐私政策",
+  legalTerms: "服务条款",
+  legalFallback: "本法律文件暂仅有中文和英文版本；非中/英访客将显示英文版本。",
+  legalLink: "社区规范",
+  privacyLink: "隐私政策",
+  termsLink: "服务条款",
 } as const;
 
 export type MsgKey = keyof typeof zh;
@@ -280,6 +290,16 @@ const en: Record<MsgKey, string> = {
   deleteFailed: "Delete failed, please try again later.",
   voteFailed: "Vote failed, please try again later.",
   reportFailed: "Report failed, please try again later.",
+
+  legalTitle: "Guidelines and Legal Statements",
+  legalUpdatedAt: "Last updated: {d}",
+  legalCommunity: "Community Guidelines",
+  legalPrivacy: "Privacy Policy",
+  legalTerms: "Terms of Service",
+  legalFallback: "This legal document is currently available in Chinese and English only. Non-Chinese, non-English visitors will see the English version.",
+  legalLink: "Community Guidelines",
+  privacyLink: "Privacy Policy",
+  termsLink: "Terms of Service",
 };
 
 import { es } from "./locales/es";

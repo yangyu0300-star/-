@@ -129,4 +129,14 @@ export const es: Record<MsgKey, string> = {
   deleteFailed: "No se pudo borrar. Inténtalo más tarde.",
   voteFailed: "No se pudo votar. Inténtalo más tarde.",
   reportFailed: "No se pudo denunciar. Inténtalo más tarde.",
+
+  legalTitle: "Normas y declaraciones legales",
+  legalUpdatedAt: "Última actualización: {d}",
+  legalCommunity: "Normas de la comunidad",
+  legalPrivacy: "Política de privacidad",
+  legalTerms: "Condiciones de servicio",
+  legalFallback: "Este documento legal solo está disponible en chino e inglés. Los visitantes no chinos ni ingleses verán la versión en inglés.",
+  legalLink: "Normas de la comunidad",
+  privacyLink: "Política de privacidad",
+  termsLink: "Condiciones de servicio",
 };

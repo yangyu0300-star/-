@@ -131,4 +131,14 @@ export const ko: Record<MsgKey, string> = {
   deleteFailed: "삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
   voteFailed: "투표에 실패했습니다. 잠시 후 다시 시도해 주세요.",
   reportFailed: "신고에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+
+  legalTitle: "커뮤니티 규정 및 법률 고지",
+  legalUpdatedAt: "최종 갱신: {d}",
+  legalCommunity: "커뮤니티 규정",
+  legalPrivacy: "개인정보 처리방침",
+  legalTerms: "이용약관",
+  legalFallback: "이 법률 문서는 현재 중국어와 영어만 제공합니다. 중국어나 영어가 아닌 방문자에게는 영어 버전이 표시됩니다.",
+  legalLink: "커뮤니티 규정",
+  privacyLink: "개인정보 처리방침",
+  termsLink: "이용약관",
 };
