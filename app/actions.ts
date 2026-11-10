@@ -274,14 +274,12 @@ export async function submitVote(input: {
   }
 
   // 同一 comment + voter_key 只保留一票；重复点击会改写这一票
-  const { error } = await supabase.from("votes").upsert(
-    {
-      comment_id: input.commentId,
-      voter_key: input.voterKey,
-      value: input.value,
-    },
-    { onConflict: "comment_id,voter_key" }
-  );
+  // 通过 SECURITY DEFINER RPC 写入（votes 表已关闭 anon 直接读写）
+  const { error } = await supabase.rpc("cast_vote", {
+    p_comment_id: input.commentId,
+    p_voter_key: input.voterKey,
+    p_value: input.value,
+  });
 
   if (error) {
     return { ok: false, error: `投票失败：${error.message}` };
