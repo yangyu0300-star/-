@@ -138,4 +138,8 @@ export const pt: Record<MsgKey, string> = {
   legalLink: "Diretrizes da comunidade",
   privacyLink: "Política de privacidade",
   termsLink: "Termos de serviço",
+
+  expandHidden: "Mostrar {n} comentário(s) oculto(s)",
+  collapseHidden: "Ocultar comentários intermediários",
+  jumpToTail: "Ir ao fim",
 };

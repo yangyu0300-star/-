@@ -141,4 +141,8 @@ export const ja: Record<MsgKey, string> = {
   legalLink: "コミュニティ規約",
   privacyLink: "プライバシーポリシー",
   termsLink: "利用規約",
+
+  expandHidden: "非表示のコメント {n} 件を表示",
+  collapseHidden: "中間のコメントを非表示",
+  jumpToTail: "最後へ",
 };

@@ -138,4 +138,8 @@ export const de: Record<MsgKey, string> = {
   legalLink: "Community-Richtlinien",
   privacyLink: "Datenschutzrichtlinie",
   termsLink: "Nutzungsbedingungen",
+
+  expandHidden: "{n} versteckte Kommentare anzeigen",
+  collapseHidden: "Zwischenkommentare ausblenden",
+  jumpToTail: "Zum Ende",
 };

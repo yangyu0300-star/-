@@ -141,4 +141,8 @@ export const ko: Record<MsgKey, string> = {
   legalLink: "커뮤니티 규정",
   privacyLink: "개인정보 처리방침",
   termsLink: "이용약관",
+
+  expandHidden: "숨겨진 댓글 {n}개 표시",
+  collapseHidden: "중간 댓글 숨기기",
+  jumpToTail: "맨 아래로",
 };
