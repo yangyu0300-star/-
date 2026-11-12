@@ -158,6 +158,10 @@ const zh = {
   legalLink: "社区规范",
   privacyLink: "隐私政策",
   termsLink: "服务条款",
+
+  expandHidden: "展开中间 {n} 条评论",
+  collapseHidden: "收起中间评论",
+  jumpToTail: "跳到链尾",
 } as const;
 
 export type MsgKey = keyof typeof zh;
@@ -300,6 +304,10 @@ const en: Record<MsgKey, string> = {
   legalLink: "Community Guidelines",
   privacyLink: "Privacy Policy",
   termsLink: "Terms of Service",
+
+  expandHidden: "Show {n} hidden comment(s) in the middle",
+  collapseHidden: "Collapse middle comments",
+  jumpToTail: "Jump to end",
 };
 
 import { es } from "./locales/es";

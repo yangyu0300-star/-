@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReplyForm from "./ReplyForm";
 import TranslateButton from "./TranslateButton";
 import { REPORT_REASONS } from "@/lib/types";
@@ -68,6 +68,26 @@ export default function TopicDetail({
   const tail = comments.length > 0 ? comments[comments.length - 1] : null;
   const qualityLabels = useMemo(() => computeQualityLabels(comments), [comments]);
   const [globalError, setGlobalError] = useState<string | null>(null);
+
+  // 长链折叠：超过 5 条时只显示前 2 + 后 2，中间折叠
+  const [showHidden, setShowHidden] = useState(false);
+  const FOLD_THRESHOLD = 5;
+  const SHOW_FIRST = 2;
+  const SHOW_LAST = 2;
+  const foldable = comments.length > FOLD_THRESHOLD;
+  const hiddenStart = SHOW_FIRST;
+  const hiddenEnd = comments.length - SHOW_LAST;
+  const hiddenCount = Math.max(0, hiddenEnd - hiddenStart);
+
+  const replyRef = useRef<HTMLDivElement>(null);
+
+  // 进入话题页自动滚到回复框（首次加载）
+  useEffect(() => {
+    const t = setTimeout(() => {
+      replyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+    return () => clearTimeout(t);
+  }, []);
 
   const [reportFor, setReportFor] = useState<string | null>(null);
   const [reportReason, setReportReason] = useState<string>(REPORT_REASONS[0]);
@@ -173,7 +193,20 @@ export default function TopicDetail({
     <>
       <div className="section-head">
         <h2>{msg(locale, "chainTitle")}</h2>
-        <span>{msg(locale, "chainMeta", { n: comments.length })}</span>
+        <div className="section-head-right">
+          <span>{msg(locale, "chainMeta", { n: comments.length })}</span>
+          {comments.length > 1 && (
+            <button
+              type="button"
+              className="jump-tail-btn"
+              onClick={() =>
+                replyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+              }
+            >
+              ↓ {msg(locale, "jumpToTail")}
+            </button>
+          )}
+        </div>
       </div>
 
       <p className="vote-hint">{msg(locale, "voteHint")}</p>
@@ -186,6 +219,22 @@ export default function TopicDetail({
 
       <div className="chain">
         {comments.map((comment, index) => {
+          // 长链折叠：中间部分跳过，渲染一个占位按钮
+          if (foldable && !showHidden && index >= hiddenStart && index < hiddenEnd) {
+            if (index === hiddenStart) {
+              return (
+                <button
+                  key="fold-toggle"
+                  type="button"
+                  className="fold-toggle"
+                  onClick={() => setShowHidden(true)}
+                >
+                  ⋯ {msg(locale, "expandHidden", { n: hiddenCount })}
+                </button>
+              );
+            }
+            return null;
+          }
           if (comment.status === "removed") {
             return (
               <article key={comment.id} className="comment comment-removed">
@@ -321,18 +370,30 @@ export default function TopicDetail({
         })}
       </div>
 
+      {foldable && showHidden && (
+        <button
+          type="button"
+          className="fold-toggle fold-toggle-collapse"
+          onClick={() => setShowHidden(false)}
+        >
+          ⋯ {msg(locale, "collapseHidden")}
+        </button>
+      )}
+
       {globalError && (
         <p className="field-error" style={{ marginTop: 14 }}>
           {globalError}
         </p>
       )}
 
-      <ReplyForm
-        tail={tail}
-        onSubmit={handleReply}
-        locale={locale}
-        blocked={tail !== null && myComments.includes(tail.id)}
-      />
+      <div ref={replyRef}>
+        <ReplyForm
+          tail={tail}
+          onSubmit={handleReply}
+          locale={locale}
+          blocked={tail !== null && myComments.includes(tail.id)}
+        />
+      </div>
     </>
   );
 }
