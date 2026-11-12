@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { getLocale } from "@/lib/i18n-server";
+import Analytics from "@/app/components/analytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://boxuezhe.cc"),
@@ -42,7 +43,10 @@ export default async function RootLayout({
 
   return (
     <html lang={locale === "en" ? "en" : "zh-CN"}>
-      <body>{children}</body>
+      <body>
+        <Analytics />
+        {children}
+      </body>
     </html>
   );
 }
