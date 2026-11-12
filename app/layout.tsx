@@ -29,7 +29,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "J-JgVn30OJRJ9f5HffFaGBZkrYYibQ-GGbSVgijFO3c",
-    baidu: "codeva-jzdYLodoNN",
+  },
+  other: {
+    "baidu-site-verification": "codeva-jzdYLodoNN",
   },
 };
 
