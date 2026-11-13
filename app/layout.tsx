@@ -33,6 +33,7 @@ export const metadata: Metadata = {
   },
   other: {
     "baidu-site-verification": "codeva-jzdYLodoNN",
+    "msvalidate.01": "7EA36875969E05DFDFFB817229F26130",
   },
 };
 
