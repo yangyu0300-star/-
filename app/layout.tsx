@@ -36,6 +36,17 @@ export const metadata: Metadata = {
   },
 };
 
+// 结构化数据：告诉搜索引擎「驳学者」这个名称对应 boxuezhe.cc
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "驳学者",
+  alternateName: ["驳学者社区", "Boxuezhe"],
+  url: "https://boxuezhe.cc",
+  description: "每条新评论，只能反驳上一条。一个反驳接力社区。",
+  inLanguage: "zh-CN",
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -43,6 +54,12 @@ export default async function RootLayout({
 
   return (
     <html lang={locale === "en" ? "en" : "zh-CN"}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+      </head>
       <body>
         <Analytics />
         {children}
