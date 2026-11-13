@@ -754,6 +754,125 @@ a {
   margin: 0;
 }
 
+/* 加载骨架 */
+.skeleton-banner,
+.skeleton-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.skeleton-banner {
+  height: 46px;
+  margin-bottom: 26px;
+}
+
+.skeleton-head {
+  margin-bottom: 22px;
+}
+
+.skeleton-list {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton-card {
+  padding: 18px 20px;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #ece9e3 25%, #f5f3ef 37%, #ece9e3 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-line-lg {
+  height: 22px;
+  width: 42%;
+}
+
+.skeleton-line-title {
+  height: 16px;
+  width: 62%;
+}
+
+.skeleton-line-sm {
+  width: 30%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line {
+    animation: none;
+  }
+}
+
+/* 错误页 / 404 */
+.fallback {
+  max-width: 480px;
+  margin: 72px auto;
+  text-align: center;
+}
+
+.fallback-code {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 10px;
+}
+
+.fallback h1 {
+  font-size: 21px;
+  margin: 0 0 10px;
+}
+
+.fallback p {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.fallback-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.fallback-link {
+  font-size: 14px;
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+
+.fallback-link:hover {
+  color: var(--accent);
+}
+
+.fallback-alt {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
 .delete-topic {
   display: flex;
   flex-wrap: wrap;
